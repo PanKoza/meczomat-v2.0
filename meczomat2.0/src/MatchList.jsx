@@ -8,7 +8,7 @@ const MatchList = ({ leagueId }) => {
     const pobierzMecze = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:3001/api/mecze?liga=${leagueId}`);
+        const response = await fetch(`https://meczomat-api.onrender.com/api/mecze?liga=${leagueId}`);
         const data = await response.json();
         setMatches(data);
       } catch (error) {

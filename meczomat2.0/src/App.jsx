@@ -57,9 +57,9 @@ function App() {
     const fetchLatest = async () => {
       try {
         const [artRes, vidRes, strRes] = await Promise.all([
-          fetch('http://localhost:3001/api/articles'),
-          fetch('http://localhost:3001/api/videos'),
-          fetch('http://localhost:3001/api/streams')
+          fetch('https://meczomat-api.onrender.com/api/articles'),
+          fetch('https://meczomat-api.onrender.com/api/videos'),
+          fetch('https://meczomat-api.onrender.com/api/streams')
         ]);
         const articles = await artRes.json();
         const videos = await vidRes.json();
@@ -84,7 +84,7 @@ function App() {
         for (const lvl in LEAGUE_STRUCTURE[prov]) {
           for (const league of LEAGUE_STRUCTURE[prov][lvl]) {
             try {
-              const res = await fetch(`http://localhost:3001/api/tabela?liga=${league.id}`);
+              const res = await fetch(`https://meczomat-api.onrender.com/api/tabela?liga=${league.id}`);
               const data = await res.json();
               
               // ZABEZPIECZENIE: Upewniamy się, że dane to tablica, zanim użyjemy .forEach
@@ -109,7 +109,7 @@ function App() {
 
   const fetchNextMatch = async (teamObj) => {
     try {
-      const res = await fetch(`http://localhost:3001/api/mecze?liga=${teamObj.league}`);
+      const res = await fetch(`https://meczomat-api.onrender.com/api/mecze?liga=${teamObj.league}`);
       const mecze = await res.json();
       if (Array.isArray(mecze)) {
         const upcoming = mecze.find(m => 

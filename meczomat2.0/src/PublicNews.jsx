@@ -10,9 +10,9 @@ const PublicNews = () => {
     const fetchData = async () => {
       try {
         const [artRes, vidRes, streamRes] = await Promise.all([
-          fetch('http://localhost:3001/api/articles'),
-          fetch('http://localhost:3001/api/videos'),
-          fetch('http://localhost:3001/api/streams')
+          fetch('https://meczomat-api.onrender.com/api/articles'),
+          fetch('https://meczomat-api.onrender.com/api/videos'),
+          fetch('https://meczomat-api.onrender.com/api/streams')
         ]);
         setArticles(await artRes.json());
         setVideos(await vidRes.json());

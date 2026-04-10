@@ -28,9 +28,9 @@ const CmsPanel = () => {
   const fetchData = async () => {
     try {
       const [artRes, vidRes, streamRes] = await Promise.all([
-        fetch('http://localhost:3001/api/articles'),
-        fetch('http://localhost:3001/api/videos'),
-        fetch('http://localhost:3001/api/streams') 
+        fetch('https://meczomat-api.onrender.com/api/articles'),
+        fetch('https://meczomat-api.onrender.com/api/videos'),
+        fetch('https://meczomat-api.onrender.com/api/streams') 
       ]);
       
       const articlesData = await artRes.json();
@@ -50,7 +50,7 @@ const CmsPanel = () => {
   const handleLogin = async (e) => {
     e.preventDefault(); setLoginError('');
     try {
-      const res = await fetch('http://localhost:3001/api/login', {
+      const res = await fetch('https://meczomat-api.onrender.com/api/login', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password })
       });
       const data = await res.json();
@@ -80,15 +80,15 @@ const CmsPanel = () => {
 
     if (activeSubTab === 'articles') {
       if (!content) return alert("Napisz treść artykułu!");
-      payload.content = content; endpoint = 'http://localhost:3001/api/articles';
+      payload.content = content; endpoint = 'https://meczomat-api.onrender.com/api/articles';
     } else if (activeSubTab === 'videos') {
       const embedUrl = getYoutubeEmbedUrl(videoUrl);
       if (!embedUrl) return alert("Błędny link YouTube!");
-      payload.embedUrl = embedUrl; endpoint = 'http://localhost:3001/api/videos';
+      payload.embedUrl = embedUrl; endpoint = 'https://meczomat-api.onrender.com/api/videos';
     } else if (activeSubTab === 'streams') {
       const embedUrl = getYoutubeEmbedUrl(videoUrl);
       if (!embedUrl) return alert("Błędny link YouTube!");
-      payload.embedUrl = embedUrl; endpoint = 'http://localhost:3001/api/streams';
+      payload.embedUrl = embedUrl; endpoint = 'https://meczomat-api.onrender.com/api/streams';
     }
     
     setIsSubmitting(true);
@@ -105,9 +105,9 @@ const CmsPanel = () => {
   const handleDelete = async (id, type) => {
     if(!window.confirm("Na pewno usunąć?")) return;
     let endpoint = '';
-    if (type === 'article') endpoint = 'http://localhost:3001/api/articles/delete';
-    if (type === 'video') endpoint = 'http://localhost:3001/api/videos/delete';
-    if (type === 'stream') endpoint = 'http://localhost:3001/api/streams/delete';
+    if (type === 'article') endpoint = 'https://meczomat-api.onrender.com/api/articles/delete';
+    if (type === 'video') endpoint = 'https://meczomat-api.onrender.com/api/videos/delete';
+    if (type === 'stream') endpoint = 'https://meczomat-api.onrender.com/api/streams/delete';
     
     try {
       await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, author: username, password }) });
