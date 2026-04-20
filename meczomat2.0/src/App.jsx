@@ -194,7 +194,7 @@ function App() {
       <nav className="sticky top-0 z-50 glass-nav animate-fade-in-down">
         <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
           <div onClick={() => setCurrentView('home')} className="flex items-center gap-3 cursor-pointer group">
-            <img src="/Group_2.jpg" alt="logo" className="h-10 w-10 object-contain logo-spin rounded-lg ring-1 ring-brand-accent/20" />
+            <img src="/Group_2.jpg" alt="Meczomat logo – wyniki piłkarskie niższych lig" className="h-10 w-10 object-contain logo-spin rounded-lg ring-1 ring-brand-accent/20" />
             <span className="text-xl font-black tracking-tight text-brand-cream">meczomat<span className="text-brand-accent">.pl</span></span>
           </div>
           <div className="flex gap-2">
@@ -266,12 +266,12 @@ function App() {
             {/* HERO */}
             <div className="text-center max-w-4xl mb-10 relative">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-brand-accent/10 rounded-full blur-[120px] -z-10"></div>
-              <img src="/Group_2.jpg" alt="logo" className="h-32 w-32 mx-auto mb-8 drop-shadow-[0_0_40px_rgba(0,255,136,0.15)] rounded-2xl logo-spin ring-1 ring-brand-accent/10" />
+              <img src="/Group_2.jpg" alt="Meczomat – wyniki niższych lig piłkarskich w Polsce" className="h-32 w-32 mx-auto mb-8 drop-shadow-[0_0_40px_rgba(0,255,136,0.15)] rounded-2xl logo-spin ring-1 ring-brand-accent/10" />
               <h1 className="text-5xl md:text-7xl font-black text-brand-cream mb-5 tracking-tight leading-[0.95]">
-                Piłka nożna<br/><span className="text-brand-accent animate-neon">na żywo</span>
+                Wyniki niższych lig<br/><span className="text-brand-accent animate-neon">na żywo</span>
               </h1>
               <p className="text-lg text-brand-cream/40 max-w-xl mx-auto leading-relaxed mb-10">
-                Zautomatyzowane wyniki, tabele i relacje z Twojego regionu w nowoczesnym wydaniu.
+                Meczomat – tabele, terminarze i wyniki meczów: IV liga, V liga, klasa okręgowa, A-klasa, B-klasa. Wszystkie województwa w Polsce.
               </p>
             </div>
 
@@ -279,7 +279,8 @@ function App() {
             <div className="w-full max-w-2xl mx-auto mb-16 relative z-30 animate-fade-in stagger-3">
               <div className="relative flex items-center group">
                 <div className="absolute left-5 text-xl text-brand-accent/40">🔍</div>
-                <input type="text" placeholder="Znajdź swój klub (np. Górnik, Śląsk)..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)}
+                <input type="text" placeholder="Wyszukaj klub – IV liga, V liga, okręgówka, A-klasa..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)}
+                  aria-label="Wyszukaj klub piłkarski w niższych ligach polskich"
                   className="input-futuristic w-full pl-14 pr-6 py-4 text-base rounded-2xl" />
               </div>
               {searchInput.trim() && filteredGlobalTeams.length > 0 && (
@@ -302,15 +303,15 @@ function App() {
               <div onClick={() => { setWizardStep(1); setCurrentView('leagues'); window.scrollTo({top: 0, behavior: 'smooth'}); }}
                 className="floating-card cursor-pointer glass-card p-8 sm:p-10 rounded-2xl group">
                 <div className="text-4xl mb-5 hover:scale-110 transition-transform">🏆</div>
-                <h3 className="text-2xl font-black text-brand-cream mb-2">Rozgrywki</h3>
-                <p className="text-brand-cream/35 mb-6">Przejdź przez interaktywny kreator i znajdź swoją ligę.</p>
+                <h3 className="text-2xl font-black text-brand-cream mb-2">Rozgrywki ligowe</h3>
+                <p className="text-brand-cream/35 mb-6">Wybierz klasę rozgrywkową – od Ekstraklasy po B-klasę. Tabele i wyniki ze wszystkich województw.</p>
                 <span className="btn-neon px-5 py-2.5 rounded-lg text-sm inline-flex items-center gap-2">Wybierz ligę →</span>
               </div>
               <div onClick={() => setCurrentView('news')}
                 className="floating-card cursor-pointer glass-card p-8 sm:p-10 rounded-2xl group">
                 <div className="text-4xl mb-5 hover:scale-110 transition-transform">📺</div>
                 <h3 className="text-2xl font-black text-brand-cream mb-2">Centrum Kibica</h3>
-                <p className="text-brand-cream/35 mb-6">Skróty wideo, relacje i wiadomości ze stadionów.</p>
+                <p className="text-brand-cream/35 mb-6">Skróty wideo, relacje na żywo i wiadomości z niższych lig piłkarskich.</p>
                 <span className="btn-neon px-5 py-2.5 rounded-lg text-sm inline-flex items-center gap-2">Oglądaj →</span>
               </div>
             </div>
@@ -319,7 +320,7 @@ function App() {
             <div className="w-full max-w-6xl mb-16">
               <div className="flex items-center gap-4 mb-8 justify-center">
                 <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-brand-accent/30"></div>
-                <h2 className="text-sm font-black text-brand-cream/50 uppercase tracking-[0.2em]">Ostatnio dodane</h2>
+                <h2 className="text-sm font-black text-brand-cream/50 uppercase tracking-[0.2em]">Najnowsze wyniki i relacje</h2>
                 <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-brand-accent/30"></div>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -411,7 +412,7 @@ function App() {
                 {wizardStep === 1 && (
                   <div className="animate-fade-in-scale">
                     <h2 className="text-2xl font-black text-center text-brand-cream mb-2">Wybierz klasę rozgrywkową</h2>
-                    <p className="text-center text-brand-cream/40 text-sm mb-8">Wskaż szczebel, który Cię interesuje.</p>
+                    <p className="text-center text-brand-cream/40 text-sm mb-8">IV liga, V liga, okręgówka, A-klasa, B-klasa – wskaż szczebel, który Cię interesuje.</p>
                     
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                       {WIZARD_LEVELS.map((level, idx) => (
@@ -518,8 +519,9 @@ function App() {
 
       {/* ===== FOOTER ===== */}
       <footer className="mt-auto border-t border-brand-accent/8 py-10 text-center">
-        <img src="/Group_2.jpg" alt="footer-logo" className="h-12 w-12 mb-4 mx-auto rounded-xl opacity-40" />
+        <img src="/Group_2.jpg" alt="Meczomat – piłka nożna niższe ligi Polska" className="h-12 w-12 mb-4 mx-auto rounded-xl opacity-40" />
         <p className="font-black text-lg mb-1 text-brand-cream/60">meczomat<span className="text-brand-accent/60">.pl</span></p>
+        <p className="text-brand-cream/30 text-xs max-w-2xl mx-auto mb-2">Meczomat – serwis z wynikami meczów piłkarskich niższych lig w Polsce. Tabele, terminarze i relacje na żywo: IV liga, V liga, klasa okręgowa, A-klasa, B-klasa, III liga, II liga, I liga, Ekstraklasa. Dane ze wszystkich 16 województw.</p>
         <p className="text-brand-cream/15 text-xs">© {new Date().getFullYear()} — Wszystkie dane pobierane automatycznie.</p>
       </footer>
     </div>

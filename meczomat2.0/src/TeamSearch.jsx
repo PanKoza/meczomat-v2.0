@@ -65,10 +65,11 @@ const TeamSearch = ({
       
       {/* SEKCJA WYSZUKIWARKI */}
       <div className="glass-card p-5 rounded-2xl relative animate-slide-up z-20">
-        <h2 className="text-lg font-bold text-brand-cream mb-4 flex items-center gap-2">🔍 Wyszukaj dowolny klub</h2>
+        <h2 className="text-lg font-bold text-brand-cream mb-4 flex items-center gap-2">🔍 Wyszukaj klub w lidze</h2>
         <input
           type="text"
-          placeholder="Wpisz nazwę klubu (np. Górnik)..."
+          placeholder="Wpisz nazwę klubu (np. Górnik, Wisła, Śląsk)..."
+          aria-label="Wyszukiwarka klubów piłkarskich w niższych ligach"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="input-futuristic w-full text-base"

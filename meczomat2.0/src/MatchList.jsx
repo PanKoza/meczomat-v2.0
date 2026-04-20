@@ -43,7 +43,7 @@ const MatchList = ({ leagueId }) => {
       <div className="glass-card rounded-2xl overflow-hidden">
         <div className="p-5 sm:p-6 border-b border-brand-accent/6">
           <h2 className="text-lg md:text-xl font-black text-brand-cream flex items-center gap-2">
-            <span className="text-2xl">📅</span> Terminarz i Wyniki
+            <span className="text-2xl">📅</span> Terminarz meczów i wyniki
           </h2>
         </div>
         

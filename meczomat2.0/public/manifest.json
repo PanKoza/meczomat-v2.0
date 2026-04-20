@@ -1,0 +1,18 @@
+{
+  "name": "Meczomat",
+  "short_name": "Meczomat",
+  "description": "Wyniki meczów, tabele i terminarze niższych lig piłkarskich w Polsce – IV liga, V liga, klasa okręgowa, A-klasa, B-klasa.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0f1a",
+  "theme_color": "#0a0f1a",
+  "lang": "pl",
+  "icons": [
+    {
+      "src": "/Group_2.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ],
+  "categories": ["sports", "news"]
+}

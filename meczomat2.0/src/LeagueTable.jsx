@@ -34,7 +34,7 @@ const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
     <div className="w-full glass-card rounded-2xl mt-6 overflow-hidden animate-slide-up stagger-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 sm:p-6 border-b border-brand-accent/6 gap-3">
         <h2 className="text-lg md:text-xl font-black text-brand-cream flex items-center gap-2">
-          <span className="text-2xl">🏆</span> Aktualna Tabela
+          <span className="text-2xl">🏆</span> Tabela ligowa – aktualne wyniki
         </h2>
         <span className="text-[10px] bg-brand-accent/8 text-brand-accent/60 px-3 py-1.5 rounded-md font-bold uppercase tracking-widest border border-brand-accent/10">
           Sezon 25/26

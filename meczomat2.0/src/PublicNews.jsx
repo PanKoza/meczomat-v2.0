@@ -27,8 +27,8 @@ const PublicNews = () => {
   return (
     <div className="max-w-5xl mx-auto animate-fade-in">
       <div className="text-center mb-10">
-        <h1 className="text-3xl md:text-5xl font-black text-brand-cream mb-3">Centrum Kibica</h1>
-        <p className="text-base text-brand-cream/30">Najnowsze informacje, skróty meczów i transmisje z lokalnych boisk.</p>
+        <h1 className="text-3xl md:text-5xl font-black text-brand-cream mb-3">Centrum Kibica – wiadomości z niższych lig</h1>
+        <p className="text-base text-brand-cream/30">Najnowsze informacje, skróty meczów i transmisje na żywo z IV ligi, V ligi, klasy okręgowej i niższych klas rozgrywkowych.</p>
       </div>
 
       {/* TABS */}

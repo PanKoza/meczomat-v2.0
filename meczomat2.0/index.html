@@ -1,10 +1,104 @@
 <!doctype html>
-<html lang="en">
+<html lang="pl">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/jpeg" href="/Group_2.jpg" />
+    <link rel="apple-touch-icon" href="/Group_2.jpg" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>meczomat2.0</title>
+
+    <!-- SEO: Title -->
+    <title>Meczomat – Wyniki na żywo | IV liga, V liga, klasa okręgowa, A-klasa, B-klasa</title>
+
+    <!-- SEO: Meta Description -->
+    <meta name="description" content="Meczomat – wyniki meczów, tabele i terminarze niższych lig piłkarskich w Polsce. Sprawdź na żywo: IV liga, V liga, klasa okręgowa, A-klasa, B-klasa, III liga i więcej. Wszystkie województwa." />
+
+    <!-- SEO: Keywords -->
+    <meta name="keywords" content="meczomat, wyniki niższych lig, IV liga wyniki, V liga wyniki, klasa okręgowa wyniki, A-klasa wyniki, B-klasa wyniki, III liga polska, tabela IV liga, tabela V liga, piłka nożna niższe ligi, wyniki piłkarskie Polska, niższe klasy rozgrywkowe, liga okręgowa, terminarz meczów, wyniki meczów na żywo, piłka nożna amatorska, wyniki regionalne piłka nożna, tabele ligowe polska, ekstraklasa, 1 liga, 2 liga" />
+
+    <!-- SEO: Robots -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+
+    <!-- SEO: Canonical -->
+    <link rel="canonical" href="https://meczomat.pl/" />
+
+    <!-- SEO: Language & Geo -->
+    <meta name="language" content="Polish" />
+    <meta name="geo.region" content="PL" />
+    <meta name="geo.placename" content="Polska" />
+    <meta http-equiv="content-language" content="pl" />
+
+    <!-- SEO: Author & Theme -->
+    <meta name="author" content="Meczomat" />
+    <meta name="theme-color" content="#0a0f1a" />
+
+    <!-- Open Graph (Facebook, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Meczomat – Wyniki niższych lig piłkarskich na żywo" />
+    <meta property="og:description" content="Sprawdź wyniki, tabele i terminarze: IV liga, V liga, klasa okręgowa, A-klasa, B-klasa. Wszystkie województwa w Polsce. Automatyczne aktualizacje 24/7." />
+    <meta property="og:url" content="https://meczomat.pl/" />
+    <meta property="og:site_name" content="Meczomat" />
+    <meta property="og:image" content="https://meczomat.pl/Group_2.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Meczomat – logo serwisu z wynikami niższych lig piłkarskich" />
+    <meta property="og:locale" content="pl_PL" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Meczomat – Wyniki niższych lig piłkarskich na żywo" />
+    <meta name="twitter:description" content="IV liga, V liga, okręgówka, A-klasa, B-klasa – wyniki, tabele i terminarze ze wszystkich województw w Polsce." />
+    <meta name="twitter:image" content="https://meczomat.pl/Group_2.jpg" />
+    <meta name="twitter:image:alt" content="Meczomat – wyniki niższych lig" />
+
+    <!-- JSON-LD: WebSite (Google Search / Sitelinks) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Meczomat",
+      "alternateName": ["meczomat.pl", "Meczomat 2.0"],
+      "url": "https://meczomat.pl/",
+      "description": "Wyniki meczów, tabele i terminarze niższych lig piłkarskich w Polsce – IV liga, V liga, klasa okręgowa, A-klasa, B-klasa.",
+      "inLanguage": "pl",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://meczomat.pl/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- JSON-LD: SportsOrganization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SportsOrganization",
+      "name": "Meczomat",
+      "url": "https://meczomat.pl/",
+      "logo": "https://meczomat.pl/Group_2.jpg",
+      "description": "Serwis z wynikami, tabelami i terminarzami niższych lig piłkarskich w Polsce. Obejmuje IV ligę, V ligę, klasę okręgową, A-klasę i B-klasę we wszystkich województwach.",
+      "sport": "Piłka nożna",
+      "areaServed": {
+        "@type": "Country",
+        "name": "Polska"
+      },
+      "sameAs": []
+    }
+    </script>
+
+    <!-- JSON-LD: BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Strona główna", "item": "https://meczomat.pl/" },
+        { "@type": "ListItem", "position": 2, "name": "Rozgrywki", "item": "https://meczomat.pl/#rozgrywki" },
+        { "@type": "ListItem", "position": 3, "name": "Centrum Kibica", "item": "https://meczomat.pl/#centrum-kibica" }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
