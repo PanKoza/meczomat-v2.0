@@ -32,6 +32,7 @@ app.use(cors({
     'http://localhost:5173',
     'http://localhost:5174',
     'https://meczomat.pl',
+    'https://www.meczomat.pl',
     /\.onrender\.com$/
   ]
 }));
