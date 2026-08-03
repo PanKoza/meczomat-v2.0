@@ -1,4 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import API from './api';
 import LeagueTable from './LeagueTable';
 import MatchList from './MatchList';
 import TeamSearch from './TeamSearch';
@@ -25,8 +27,46 @@ const LEAGUE_STRUCTURE = {
       { id: "okregowka-Jelenia-Gora", name: "Grupa Jelenia Góra" },
       { id: "okregowka-Walbrzych", name: "Grupa Wałbrzych" }
     ],
-    "A-Klasa": [{ id: "a-klasa", name: "Wybierz grupę A-Klasy..." }],
-    "B-Klasa": []
+    "A-Klasa": [
+      { id: "Decathlon-Klasa-A-Wroclaw-I",      name: "Wrocław I" },
+      { id: "Decathlon-Klasa-A-Wroclaw-II",     name: "Wrocław II" },
+      { id: "Decathlon-Klasa-A-Wroclaw-III",    name: "Wrocław III" },
+      { id: "Decathlon-Klasa-A-Wroclaw-IV",     name: "Wrocław IV" },
+      { id: "Decathlon-Klasa-A-Legnica-I",      name: "Legnica I" },
+      { id: "Decathlon-Klasa-A-Legnica-II",     name: "Legnica II" },
+      { id: "Decathlon-Klasa-A-Legnica-III",    name: "Legnica III" },
+      { id: "Decathlon-Klasa-A-Walbrzych-I",    name: "Wałbrzych I" },
+      { id: "Decathlon-Klasa-A-Walbrzych-II",   name: "Wałbrzych II" },
+      { id: "Decathlon-Klasa-A-Walbrzych-III",  name: "Wałbrzych III" },
+      { id: "Decathlon-Klasa-A-Jelenia-Gora-I", name: "Jelenia Góra I" },
+      { id: "Decathlon-Klasa-A-Jelenia-Gora-II",name: "Jelenia Góra II" },
+      { id: "Decathlon-Klasa-A-Jelenia-Gora-III",name: "Jelenia Góra III" }
+    ],
+    "B-Klasa": [
+      { id: "Klasa-B-Wroclaw-I",       name: "Wrocław I" },
+      { id: "Klasa-B-Wroclaw-II",      name: "Wrocław II" },
+      { id: "Klasa-B-Wroclaw-III",     name: "Wrocław III" },
+      { id: "Klasa-B-Wroclaw-IV",      name: "Wrocław IV" },
+      { id: "Klasa-B-Wroclaw-V",       name: "Wrocław V" },
+      { id: "Klasa-B-Wroclaw-VI",      name: "Wrocław VI" },
+      { id: "Klasa-B-Wroclaw-VII",     name: "Wrocław VII" },
+      { id: "Klasa-B-Wroclaw-VIII",    name: "Wrocław VIII" },
+      { id: "Klasa-B-Legnica-I",       name: "Legnica I" },
+      { id: "Klasa-B-Legnica-II",      name: "Legnica II" },
+      { id: "Klasa-B-Legnica-III",     name: "Legnica III" },
+      { id: "Klasa-B-Legnica-IV",      name: "Legnica IV" },
+      { id: "Klasa-B-Legnica-V",       name: "Legnica V" },
+      { id: "Klasa-B-Walbrzych-I",     name: "Wałbrzych I" },
+      { id: "Klasa-B-Walbrzych-II",    name: "Wałbrzych II" },
+      { id: "Klasa-B-Walbrzych-III",   name: "Wałbrzych III" },
+      { id: "Klasa-B-Walbrzych-IV",    name: "Wałbrzych IV" },
+      { id: "Klasa-B-Walbrzych-V",     name: "Wałbrzych V" },
+      { id: "Klasa-B-Jelenia-Gora-I",  name: "Jelenia Góra I" },
+      { id: "Klasa-B-Jelenia-Gora-II", name: "Jelenia Góra II" },
+      { id: "Klasa-B-Jelenia-Gora-III",name: "Jelenia Góra III" },
+      { id: "Klasa-B-Jelenia-Gora-IV", name: "Jelenia Góra IV" },
+      { id: "Klasa-B-Jelenia-Gora-V",  name: "Jelenia Góra V" }
+    ]
   }
 };
 
@@ -44,7 +84,16 @@ const WIZARD_LEVELS = [
 ];
 
 function App() {
-  const [currentView, setCurrentView] = useState('home');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Derive current view from URL path
+  const currentView = location.pathname === '/' ? 'home'
+    : location.pathname.startsWith('/rozgrywki') ? 'leagues'
+    : location.pathname === '/centrum-kibica' ? 'news'
+    : location.pathname === '/cms' ? 'cms'
+    : 'home';
+
   const [currentLeague, setCurrentLeague] = useState(null);
 
   // --- STANY KREATORA (WIZARD) ---
@@ -70,12 +119,19 @@ function App() {
       fetchNextMatch(parsed);
     }
 
+    // Sync league from URL on initial load
+    const leagueMatch = location.pathname.match(/^\/rozgrywki\/(.+)/);
+    if (leagueMatch) {
+      setCurrentLeague(leagueMatch[1]);
+      setWizardStep(4);
+    }
+
     const fetchLatest = async () => {
       try {
         const [artRes, vidRes, strRes] = await Promise.all([
-          fetch('https://meczomat-api.onrender.com/api/articles'),
-          fetch('https://meczomat-api.onrender.com/api/videos'),
-          fetch('https://meczomat-api.onrender.com/api/streams')
+          fetch(`${API}/api/articles`),
+          fetch(`${API}/api/videos`),
+          fetch(`${API}/api/streams`)
         ]);
         const articles = await artRes.json();
         const videos = await vidRes.json();
@@ -91,21 +147,25 @@ function App() {
     fetchLatest();
 
     const fetchAllTeams = async () => {
-      let all = [];
-      for (const prov in LEAGUE_STRUCTURE) {
-        for (const lvl in LEAGUE_STRUCTURE[prov]) {
-          for (const league of LEAGUE_STRUCTURE[prov][lvl]) {
-            try {
-              const res = await fetch(`https://meczomat-api.onrender.com/api/tabela?liga=${league.id}`);
-              const data = await res.json();
-              if (Array.isArray(data)) {
-                data.forEach(team => {
-                  all.push({ name: team.nazwa, leagueId: league.id, province: prov, level: lvl });
-                });
-              }
-            } catch (e) { console.error("Pominięto:", league.id); }
+      const leagues = [];
+      for (const prov in LEAGUE_STRUCTURE)
+        for (const lvl in LEAGUE_STRUCTURE[prov])
+          for (const league of LEAGUE_STRUCTURE[prov][lvl])
+            leagues.push({ ...league, province: prov, level: lvl });
+
+      // Pobieramy po 5 na raz żeby nie zalewać API
+      const BATCH = 5;
+      const all = [];
+      for (let i = 0; i < leagues.length; i += BATCH) {
+        const batch = leagues.slice(i, i + BATCH);
+        const results = await Promise.allSettled(
+          batch.map(l => fetch(`${API}/api/tabela?liga=${l.id}`).then(r => r.ok ? r.json() : null))
+        );
+        results.forEach((r, idx) => {
+          if (r.status === 'fulfilled' && Array.isArray(r.value)) {
+            r.value.forEach(team => all.push({ name: team.nazwa, leagueId: batch[idx].id, province: batch[idx].province, level: batch[idx].level }));
           }
-        }
+        });
       }
       setGlobalTeams(all);
     };
@@ -114,7 +174,7 @@ function App() {
 
   const fetchNextMatch = async (teamObj) => {
     try {
-      const res = await fetch(`https://meczomat-api.onrender.com/api/mecze?liga=${teamObj.league}`);
+      const res = await fetch(`${API}/api/mecze?liga=${teamObj.league}`);
       const mecze = await res.json();
       if (Array.isArray(mecze)) {
         const upcoming = mecze.find(m => (m.gospodarz.nazwa === teamObj.name || m.gosc.nazwa === teamObj.name) && m.status === 'Nierozegrany');
@@ -142,12 +202,13 @@ function App() {
       const groups = LEAGUE_STRUCTURE["Cała Polska"][levelObj.id];
       if (groups && groups.length === 1) {
         setCurrentLeague(groups[0].id);
-        setWizardStep(4); // Pomiń wybór grupy, od razu gotowe
+        setWizardStep(4);
+        navigate('/rozgrywki/' + groups[0].id);
       } else {
-        setWizardStep(3); // Wybór grupy (np. dla III ligi)
+        setWizardStep(3);
       }
     } else {
-      setWizardStep(2); // Wybór województwa
+      setWizardStep(2);
     }
   };
 
@@ -159,6 +220,7 @@ function App() {
     if (groups.length === 1) {
       setCurrentLeague(groups[0].id);
       setWizardStep(4);
+      navigate('/rozgrywki/' + groups[0].id);
     } else {
       setWizardStep(3);
     }
@@ -167,6 +229,7 @@ function App() {
   const handleGroupSelect = (groupId) => {
     setCurrentLeague(groupId);
     setWizardStep(4);
+    navigate('/rozgrywki/' + groupId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -175,8 +238,8 @@ function App() {
     setWizLevel(lvl);
     setCurrentLeague(leagueId);
     setTargetTeamProfile(teamName);
-    setWizardStep(4); // Pomiń kreator i pokaż dane
-    setCurrentView('leagues');
+    setWizardStep(4);
+    navigate('/rozgrywki/' + leagueId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -193,15 +256,15 @@ function App() {
       {/* ===== NAVBAR ===== */}
       <nav className="sticky top-0 z-50 glass-nav animate-fade-in-down">
         <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <div onClick={() => setCurrentView('home')} className="flex items-center gap-3 cursor-pointer group">
+          <div onClick={() => navigate('/')} className="flex items-center gap-3 cursor-pointer group">
             <img src="/Group_2.jpg" alt="Meczomat logo – wyniki piłkarskie niższych lig" className="h-10 w-10 object-contain logo-spin rounded-lg ring-1 ring-brand-accent/20" />
             <span className="text-xl font-black tracking-tight text-brand-cream">meczomat<span className="text-brand-accent">.pl</span></span>
           </div>
           <div className="flex gap-2">
             {[
-              { key: 'leagues', label: 'Rozgrywki', icon: '🏆', action: () => { setWizardStep(1); setCurrentView('leagues'); } },
-              { key: 'news', label: 'Centrum Kibica', icon: '📺', action: () => setCurrentView('news') },
-              { key: 'cms', label: 'CMS', icon: '⚙️', action: () => setCurrentView('cms') }
+              { key: 'leagues', label: 'Rozgrywki', icon: '🏆', action: () => { setWizardStep(1); navigate('/rozgrywki'); } },
+              { key: 'news', label: 'Centrum Kibica', icon: '📺', action: () => navigate('/centrum-kibica') },
+              { key: 'cms', label: 'CMS', icon: '⚙️', action: () => navigate('/cms') }
             ].map(item => (
               <button key={item.key} onClick={item.action}
                 className={`text-sm px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all duration-300 ${
@@ -251,7 +314,7 @@ function App() {
                       </div>
                     </div>
                     <div className="flex gap-3">
-                      <button onClick={() => { setTargetTeamProfile(favoriteTeam.name); setCurrentLeague(favoriteTeam.league); setWizardStep(4); setCurrentView('leagues'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                      <button onClick={() => { setTargetTeamProfile(favoriteTeam.name); setCurrentLeague(favoriteTeam.league); setWizardStep(4); navigate('/rozgrywki/' + favoriteTeam.league); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                         className="btn-neon px-6 py-3 rounded-xl text-sm flex items-center gap-2">
                         Statystyki <span className="text-lg">→</span>
                       </button>
@@ -300,14 +363,14 @@ function App() {
 
             {/* Nav cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl mb-16">
-              <div onClick={() => { setWizardStep(1); setCurrentView('leagues'); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+              <div onClick={() => { setWizardStep(1); navigate('/rozgrywki'); window.scrollTo({top: 0, behavior: 'smooth'}); }}
                 className="floating-card cursor-pointer glass-card p-8 sm:p-10 rounded-2xl group">
                 <div className="text-4xl mb-5 hover:scale-110 transition-transform">🏆</div>
                 <h3 className="text-2xl font-black text-brand-cream mb-2">Rozgrywki ligowe</h3>
                 <p className="text-brand-cream/35 mb-6">Wybierz klasę rozgrywkową – od Ekstraklasy po B-klasę. Tabele i wyniki ze wszystkich województw.</p>
                 <span className="btn-neon px-5 py-2.5 rounded-lg text-sm inline-flex items-center gap-2">Wybierz ligę →</span>
               </div>
-              <div onClick={() => setCurrentView('news')}
+              <div onClick={() => navigate('/centrum-kibica')}
                 className="floating-card cursor-pointer glass-card p-8 sm:p-10 rounded-2xl group">
                 <div className="text-4xl mb-5 hover:scale-110 transition-transform">📺</div>
                 <h3 className="text-2xl font-black text-brand-cream mb-2">Centrum Kibica</h3>
@@ -326,7 +389,7 @@ function App() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                  {/* Zostawiam oryginalny kod sekcji "Ostatnio Dodane" z Twojego App.jsx */}
                  {latestContent.article ? (
-                  <div onClick={() => setCurrentView('news')} className="glass-card p-6 rounded-2xl cursor-pointer relative overflow-hidden flex flex-col group">
+                  <div onClick={() => navigate('/centrum-kibica')} className="glass-card p-6 rounded-2xl cursor-pointer relative overflow-hidden flex flex-col group">
                     <div className="absolute top-0 left-0 w-[2px] h-full bg-blue-400/60"></div>
                     <div className="text-2xl mb-3 opacity-80">📰</div>
                     <h3 className="font-bold text-lg text-brand-cream mb-2 line-clamp-2">{latestContent.article.title}</h3>
@@ -356,7 +419,7 @@ function App() {
                 {latestContent.stream ? (
                   <div className="glass-card rounded-2xl overflow-hidden flex flex-col border-red-500/20 group">
                     <div className="relative pt-[56.25%] bg-black/40 border-b border-red-500/30">
-                      <iframe className="absolute top-0 left-0 w-full h-full" src={latestContent.stream.embedUrl} title={latestContent.stream.title} frameBorder="0" allow="autoplay; fullscreen" allowFullScreen></iframe>
+                      <iframe className="absolute top-0 left-0 w-full h-full" src={latestContent.stream.embedUrl} title={latestContent.stream.title} frameBorder="0" allow="autoplay; fullscreen"></iframe>
                     </div>
                     <div className="p-5 flex flex-col flex-grow">
                       <h3 className="font-black text-base text-red-400 mb-2 line-clamp-2">{latestContent.stream.title}</h3>

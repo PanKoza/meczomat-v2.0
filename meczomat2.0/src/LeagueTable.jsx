@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API from './api';
 
 const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
   const [tableData, setTableData] = useState([]);
@@ -8,7 +9,7 @@ const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
     const pobierzTabele = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`https://meczomat-api.onrender.com/api/tabela?liga=${leagueId}`);
+        const response = await fetch(`${API}/api/tabela?liga=${leagueId}`);
         const data = await response.json();
         setTableData(data);
       } catch (error) {

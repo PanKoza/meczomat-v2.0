@@ -1,21 +1,63 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const iconv = require('iconv-lite');
-const mongoose = require('mongoose'); // <-- NOWOŚĆ: Połączenie z bazą danych
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const { createClient } = require('redis');
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error('Brak JWT_SECRET w pliku .env');
+
+// Middleware weryfikujący token JWT
+function requireAuth(req, res, next) {
+  const auth = req.headers['authorization'];
+  const token = auth && auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Brak tokenu sesji.' });
+  try {
+    req.user = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch {
+    res.status(401).json({ error: 'Token nieważny lub wygasł.' });
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://meczomat.pl',
+    /\.onrender\.com$/
+  ]
+}));
 app.use(express.json());
 
-// ==========================================================
-// --- 0. POŁĄCZENIE Z BAZĄ DANYCH MONGODB ---
-// UWAGA: WKLEJ TUTAJ SWÓJ LINK SKOPIOWANY Z MONGODB ATLAS
-// (Pamiętaj o podmianie <password> na swoje hasło do bazy)
-const MONGO_URI = 'mongodb+srv://PanKoza:Meczomat2005@cluster0.ijaep7g.mongodb.net/?appName=Cluster0';
-// ==========================================================
+// --- REDIS z fallbackiem na in-memory ---
+let redisReady = false;
+const memCache = {}; // fallback gdy Redis niedostępny
+const redis = createClient({ url: process.env.REDIS_URL || 'redis://127.0.0.1:6379' });
+redis.on('error', () => { redisReady = false; });
+redis.connect()
+  .then(() => { redisReady = true; console.log('🟥 Połączono z Redis'); })
+  .catch(() => console.warn('⚠️ Redis niedostępny — używam in-memory cache'));
+
+async function cacheGet(key) {
+  if (redisReady) return redis.get(key);
+  const entry = memCache[key];
+  return entry && Date.now() < entry.exp ? entry.val : null;
+}
+async function cacheSet(key, ttlSec, value) {
+  if (redisReady) return redis.setEx(key, ttlSec, value);
+  memCache[key] = { val: value, exp: Date.now() + ttlSec * 1000 };
+}
+
+const MONGO_URI = process.env.MONGO_URI;
+if (!MONGO_URI) throw new Error('Brak MONGO_URI w pliku .env');
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log('📦 Sukces! Połączono z chmurową bazą MongoDB!'))
@@ -33,35 +75,70 @@ const Stream = mongoose.model('Stream', StreamSchema);
 
 // --- 1. SŁOWNIK LIG (Linki do 90minut.pl) ---
 const LEAGUES = {
-  // Szczeble Centralne (Sezon 2025/2026)
-  'ekstraklasa': 'http://www.90minut.pl/liga/1/liga14072.html',
-  '1-liga': 'http://www.90minut.pl/liga/1/liga14073.html',
-  '2-liga': 'http://www.90minut.pl/liga/1/liga14074.html',
-  '3-liga-gr1': 'http://www.90minut.pl/liga/1/liga14154.html',
-  '3-liga-gr2': 'http://www.90minut.pl/liga/1/liga14155.html',
-  '3-liga-gr3': 'http://www.90minut.pl/liga/1/liga14156.html',
-  '3-liga-gr4': 'http://www.90minut.pl/liga/1/liga14157.html',
+  // Szczeble Centralne (Sezon 26/27)
+  'ekstraklasa': 'http://www.90minut.pl/liga/1/liga14675.html',
+  '1-liga': 'http://www.90minut.pl/liga/1/liga14676.html',
+  '2-liga': 'http://www.90minut.pl/liga/1/liga14677.html',
+  '3-liga-gr1': 'http://www.90minut.pl/liga/1/liga14742.html',
+  '3-liga-gr2': 'http://www.90minut.pl/liga/1/liga14743.html',
+  '3-liga-gr3': 'http://www.90minut.pl/liga/1/liga14744.html',
+  '3-liga-gr4': 'http://www.90minut.pl/liga/1/liga14745.html',
   
   // Ligi Wojewódzkie
-  'iv-liga': 'http://www.90minut.pl/liga/1/liga14169.html',
-  'okregowka-Jelenia-Gora': 'http://www.90minut.pl/liga/1/liga14204.html',
-  'okregowka-Legnica': 'http://www.90minut.pl/liga/1/liga14205.html',
-  'okregowka-Walbrzych': 'http://www.90minut.pl/liga/1/liga14175.html',
-  'okregowka-Wroclaw': 'http://www.90minut.pl/liga/1/liga14275.html',
-  'a-klasa': 'TUTAJ_WKLEJ_LINK_Z_90MINUT',
+  // Dolnośląski ZPN (Sezon 26/27)
+  'iv-liga': 'http://www.90minut.pl/liga/1/liga14768.html',
+  'okregowka-Jelenia-Gora': 'http://www.90minut.pl/liga/1/liga14800.html',
+  'okregowka-Legnica': 'http://www.90minut.pl/liga/1/liga14781.html',
+  'okregowka-Walbrzych': 'http://www.90minut.pl/liga/1/liga14801.html',
+  'okregowka-Wroclaw': 'http://www.90minut.pl/liga/1/liga15096.html',
+  'Decathlon-Klasa-A-Jelenia-Gora-I': 'http://www.90minut.pl/liga/1/liga14879.html',
+  'Decathlon-Klasa-A-Jelenia-Gora-II': 'http://www.90minut.pl/liga/1/liga14880.html',
+  'Decathlon-Klasa-A-Jelenia-Gora-III': 'http://www.90minut.pl/liga/1/liga14881.html',
+  'Decathlon-Klasa-A-Legnica-I': 'http://www.90minut.pl/liga/1/liga14811.html',
+  'Decathlon-Klasa-A-Legnica-II': 'http://www.90minut.pl/liga/1/liga14812.html',
+  'Decathlon-Klasa-A-Legnica-III': 'http://www.90minut.pl/liga/1/liga14813.html',
+  'Decathlon-Klasa-A-Walbrzych-I': 'http://www.90minut.pl/liga/1/liga14814.html',
+  'Decathlon-Klasa-A-Walbrzych-II': 'http://www.90minut.pl/liga/1/liga14815.html',
+  'Decathlon-Klasa-A-Walbrzych-III': 'http://www.90minut.pl/liga/1/liga14816.html',
+  'Decathlon-Klasa-A-Wroclaw-I': 'http://www.90minut.pl/liga/1/liga14784.html',
+  'Decathlon-Klasa-A-Wroclaw-II': 'http://www.90minut.pl/liga/1/liga14785.html',
+  'Decathlon-Klasa-A-Wroclaw-III': 'http://www.90minut.pl/liga/1/liga14786.html',
+  'Decathlon-Klasa-A-Wroclaw-IV': 'http://www.90minut.pl/liga/1/liga14787.html',
+  'Klasa-B-Jelenia-Gora-I': 'http://www.90minut.pl/liga/1/liga14976.html',
+  'Klasa-B-Jelenia-Gora-II': 'http://www.90minut.pl/liga/1/liga14977.html',
+  'Klasa-B-Jelenia-Gora-III': 'http://www.90minut.pl/liga/1/liga14978.html',
+  'Klasa-B-Jelenia-Gora-IV': 'http://www.90minut.pl/liga/1/liga14979.html',
+  'Klasa-B-Jelenia-Gora-V': 'http://www.90minut.pl/liga/1/liga14980.html',
+  'Klasa-B-Legnica-I': 'http://www.90minut.pl/liga/1/liga14842.html',
+  'Klasa-B-Legnica-II': 'http://www.90minut.pl/liga/1/liga14843.html',
+  'Klasa-B-Legnica-III': 'http://www.90minut.pl/liga/1/liga14844.html',
+  'Klasa-B-Legnica-IV': 'http://www.90minut.pl/liga/1/liga14845.html',
+  'Klasa-B-Legnica-V': 'http://www.90minut.pl/liga/1/liga14846.html',
+  'Klasa-B-Walbrzych-I': 'http://www.90minut.pl/liga/1/liga14882.html',
+  'Klasa-B-Walbrzych-II': 'http://www.90minut.pl/liga/1/liga14883.html',
+  'Klasa-B-Walbrzych-III': 'http://www.90minut.pl/liga/1/liga14884.html',
+  'Klasa-B-Walbrzych-IV': 'http://www.90minut.pl/liga/1/liga14885.html',
+  'Klasa-B-Walbrzych-V': 'http://www.90minut.pl/liga/1/liga14886.html',
+  'Klasa-B-Wroclaw-I': 'http://www.90minut.pl/liga/1/liga14788.html',
+  'Klasa-B-Wroclaw-II': 'http://www.90minut.pl/liga/1/liga14789.html',
+  'Klasa-B-Wroclaw-III': 'http://www.90minut.pl/liga/1/liga14790.html',
+  'Klasa-B-Wroclaw-IV': 'http://www.90minut.pl/liga/1/liga14791.html',
+  'Klasa-B-Wroclaw-V': 'http://www.90minut.pl/liga/1/liga14792.html',
+  'Klasa-B-Wroclaw-VI': 'http://www.90minut.pl/liga/1/liga14793.html',
+  'Klasa-B-Wroclaw-VII': 'http://www.90minut.pl/liga/1/liga14794.html',
+  'Klasa-B-Wroclaw-VIII': 'http://www.90minut.pl/liga/1/liga14795.html',
   'iv-liga-opolska': 'TUTAJ_WKLEJ_LINK_Z_90MINUT'
 };
 
 // --- 2. MULTI-CACHE ---
-let cache = {};      
-let fetchPromises = {}; 
-const CACHE_TIME = 15 * 60 * 1000; // 15 minut
+let fetchPromises = {};
+const CACHE_TTL_SEC = 15 * 60; // 15 minut — TTL ustawiany w Redis
 
-// Lista uprawnionych redaktorów (Login : Hasło)
+// Hashe haseł redaktorów ładowane z .env (JOURNALIST_<LOGIN> = hash bcrypt)
 const JOURNALISTS = {
-  'admin': 'haslo123',
-  'redaktor': 'pilka2025',
-  'kamera': 'wideo123'
+  'admin':    process.env.JOURNALIST_ADMIN,
+  'redaktor': process.env.JOURNALIST_REDAKTOR,
+  'kamera':   process.env.JOURNALIST_KAMERA,
 };
 
 // --- GŁÓWNY SKRYPT SCRAPUJĄCY ---
@@ -170,26 +247,23 @@ async function ensureDataIsFresh(ligaId) {
     throw new Error("Brak prawidłowego linku dla tej ligi");
   }
 
-  const now = Date.now();
-  
-  if (cache[ligaId] && (now - cache[ligaId].lastFetchTime < CACHE_TIME)) {
-    return true;
-  }
-  
+  const cached = await cacheGet(`liga:${ligaId}`);
+  if (cached) return true;
+
   if (fetchPromises[ligaId]) {
     await fetchPromises[ligaId];
     return true;
   }
-  
+
   console.log(`🐌 Pobieram dane w locie dla [${ligaId}] z 90minut.pl...`);
-  
+
   const currentTask = (async () => {
-    const newData = await fetchFrom90Minut(targetUrl); 
+    const newData = await fetchFrom90Minut(targetUrl);
     if (newData && newData.tabela.length > 0) {
-      cache[ligaId] = { tabela: newData.tabela, mecze: newData.mecze, lastFetchTime: Date.now() };
+      await cacheSet(`liga:${ligaId}`, CACHE_TTL_SEC, JSON.stringify(newData));
     }
   })();
-  
+
   fetchPromises[ligaId] = currentTask;
   await currentTask;
   fetchPromises[ligaId] = null;
@@ -198,13 +272,14 @@ async function ensureDataIsFresh(ligaId) {
 
 // --- ENDPOINTY ZAWODÓW ---
 app.get('/api/tabela', async (req, res) => {
-  const ligaId = req.query.liga || 'iv-liga'; 
+  const ligaId = req.query.liga || 'iv-liga';
   try {
     await ensureDataIsFresh(ligaId);
     console.log(`⚡ Oddaję TABELE dla [${ligaId}]`);
-    res.json(cache[ligaId]?.tabela || []);
-  } catch(e) { 
-    res.status(400).json({error: "Błąd ligi lub brak linku"}); 
+    const raw = await cacheGet(`liga:${ligaId}`);
+    res.json(raw ? JSON.parse(raw).tabela : []);
+  } catch(e) {
+    res.status(400).json({error: "Błąd ligi lub brak linku"});
   }
 });
 
@@ -213,17 +288,28 @@ app.get('/api/mecze', async (req, res) => {
   try {
     await ensureDataIsFresh(ligaId);
     console.log(`⚡ Oddaję MECZE dla [${ligaId}]`);
-    res.json(cache[ligaId]?.mecze || []);
-  } catch(e) { 
-    res.status(400).json({error: "Błąd ligi lub brak linku"}); 
+    const raw = await cacheGet(`liga:${ligaId}`);
+    res.json(raw ? JSON.parse(raw).mecze : []);
+  } catch(e) {
+    res.status(400).json({error: "Błąd ligi lub brak linku"});
   }
 });
 
+// Inwalidacja cache ligi po zmianie linku — tylko lokalnie/dev
+app.delete('/api/cache/:ligaId', requireAuth, async (req, res) => {
+  const { ligaId } = req.params;
+  if (redisReady) await redis.del(`liga:${ligaId}`);
+  else delete memCache[`liga:${ligaId}`];
+  res.json({ success: true, cleared: `liga:${ligaId}` });
+});
+
 // --- ENDPOINTY LOGOWANIA ---
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-  if (JOURNALISTS[username] && JOURNALISTS[username] === password) {
-    res.json({ success: true, username: username });
+  const hash = JOURNALISTS[username];
+  if (hash && await bcrypt.compare(password, hash)) {
+    const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '8h' });
+    res.json({ success: true, username, token });
   } else {
     res.status(401).json({ success: false, error: 'Błędny login lub hasło!' });
   }
@@ -244,15 +330,12 @@ app.get('/api/articles', async (req, res) => {
   }
 });
 
-app.post('/api/articles', async (req, res) => {
-  const { title, content, author, password } = req.body;
-  if (!JOURNALISTS[author] || JOURNALISTS[author] !== password) {
-    return res.status(403).json({ error: 'Brak uprawnień do publikacji!' });
-  }
-  
+app.post('/api/articles', requireAuth, async (req, res) => {
+  const { title, content } = req.body;
+  const author = req.user.username;
   try {
     const newArticle = await Article.create({
-      title, content, author, 
+      title, content, author,
       date: new Date().toLocaleDateString('pl-PL', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
     });
     res.json({ success: true, article: { id: newArticle._id, title, content, author, date: newArticle.date } });
@@ -261,12 +344,8 @@ app.post('/api/articles', async (req, res) => {
   }
 });
 
-app.post('/api/articles/delete', async (req, res) => {
-  const { id, author, password } = req.body;
-  if (!JOURNALISTS[author] || JOURNALISTS[author] !== password) {
-    return res.status(403).json({ error: 'Brak uprawnień!' });
-  }
-  
+app.post('/api/articles/delete', requireAuth, async (req, res) => {
+  const { id } = req.body;
   try {
     await Article.findByIdAndDelete(id);
     res.json({ success: true });
@@ -285,15 +364,12 @@ app.get('/api/videos', async (req, res) => {
   }
 });
 
-app.post('/api/videos', async (req, res) => {
-  const { title, embedUrl, author, password } = req.body;
-  if (!JOURNALISTS[author] || JOURNALISTS[author] !== password) {
-    return res.status(403).json({ error: 'Brak uprawnień!' });
-  }
-  
+app.post('/api/videos', requireAuth, async (req, res) => {
+  const { title, embedUrl } = req.body;
+  const author = req.user.username;
   try {
     const newVideo = await Video.create({
-      title, embedUrl, author, 
+      title, embedUrl, author,
       date: new Date().toLocaleDateString('pl-PL', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
     });
     res.json({ success: true, video: { id: newVideo._id, title, embedUrl, author, date: newVideo.date } });
@@ -302,12 +378,8 @@ app.post('/api/videos', async (req, res) => {
   }
 });
 
-app.post('/api/videos/delete', async (req, res) => {
-  const { id, author, password } = req.body;
-  if (!JOURNALISTS[author] || JOURNALISTS[author] !== password) {
-    return res.status(403).json({ error: 'Brak uprawnień!' });
-  }
-  
+app.post('/api/videos/delete', requireAuth, async (req, res) => {
+  const { id } = req.body;
   try {
     await Video.findByIdAndDelete(id);
     res.json({ success: true });
@@ -326,15 +398,12 @@ app.get('/api/streams', async (req, res) => {
   }
 });
 
-app.post('/api/streams', async (req, res) => {
-  const { title, embedUrl, author, password } = req.body;
-  if (!JOURNALISTS[author] || JOURNALISTS[author] !== password) {
-    return res.status(403).json({ error: 'Brak uprawnień!' });
-  }
-  
+app.post('/api/streams', requireAuth, async (req, res) => {
+  const { title, embedUrl } = req.body;
+  const author = req.user.username;
   try {
     const newStream = await Stream.create({
-      title, embedUrl, author, 
+      title, embedUrl, author,
       date: new Date().toLocaleDateString('pl-PL', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
     });
     res.json({ success: true, stream: { id: newStream._id, title, embedUrl, author, date: newStream.date } });
@@ -343,18 +412,22 @@ app.post('/api/streams', async (req, res) => {
   }
 });
 
-app.post('/api/streams/delete', async (req, res) => {
-  const { id, author, password } = req.body;
-  if (!JOURNALISTS[author] || JOURNALISTS[author] !== password) {
-    return res.status(403).json({ error: 'Brak uprawnień!' });
-  }
-  
+app.post('/api/streams/delete', requireAuth, async (req, res) => {
+  const { id } = req.body;
   try {
     await Stream.findByIdAndDelete(id);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Błąd usuwania' });
   }
+});
+
+// SPA fallback — serwuje index.html dla nieznanych ścieżek (React Router history mode)
+const path = require('path');
+const DIST = path.join(__dirname, 'meczomat2.0', 'dist');
+app.use(express.static(DIST));
+app.get('/{*path}', (req, res) => {
+  res.sendFile(path.join(DIST, 'index.html'));
 });
 
 app.listen(PORT, () => {

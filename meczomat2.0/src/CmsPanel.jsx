@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API from './api';
 
 const CmsPanel = () => {
   const [activeSubTab, setActiveSubTab] = useState('articles'); // 'articles', 'videos', 'streams'
@@ -10,6 +11,7 @@ const CmsPanel = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [token, setToken] = useState(null);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState(''); 
@@ -19,18 +21,18 @@ const CmsPanel = () => {
   useEffect(() => {
     fetchData();
     const savedUser = localStorage.getItem('meczomat_user');
-    const savedPass = localStorage.getItem('meczomat_pass');
-    if (savedUser && savedPass) {
-      setIsLoggedIn(true); setUsername(savedUser); setPassword(savedPass);
+    const savedToken = localStorage.getItem('meczomat_token');
+    if (savedUser && savedToken) {
+      setIsLoggedIn(true); setUsername(savedUser); setToken(savedToken);
     }
   }, []);
 
   const fetchData = async () => {
     try {
       const [artRes, vidRes, streamRes] = await Promise.all([
-        fetch('https://meczomat-api.onrender.com/api/articles'),
-        fetch('https://meczomat-api.onrender.com/api/videos'),
-        fetch('https://meczomat-api.onrender.com/api/streams') 
+        fetch(`${API}/api/articles`),
+        fetch(`${API}/api/videos`),
+        fetch(`${API}/api/streams`) 
       ]);
       
       const articlesData = await artRes.json();
@@ -50,19 +52,21 @@ const CmsPanel = () => {
   const handleLogin = async (e) => {
     e.preventDefault(); setLoginError('');
     try {
-      const res = await fetch('https://meczomat-api.onrender.com/api/login', {
+      const res = await fetch(`${API}/api/login`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password })
       });
       const data = await res.json();
       if (data.success) {
-        setIsLoggedIn(true); localStorage.setItem('meczomat_user', username); localStorage.setItem('meczomat_pass', password);
+        setIsLoggedIn(true); setToken(data.token);
+        localStorage.setItem('meczomat_user', username);
+        localStorage.setItem('meczomat_token', data.token);
       } else setLoginError(data.error);
     } catch (error) { setLoginError("Błąd połączenia."); }
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false); setUsername(''); setPassword('');
-    localStorage.removeItem('meczomat_user'); localStorage.removeItem('meczomat_pass');
+    setIsLoggedIn(false); setUsername(''); setPassword(''); setToken(null);
+    localStorage.removeItem('meczomat_user'); localStorage.removeItem('meczomat_token');
   };
 
   const getYoutubeEmbedUrl = (url) => {
@@ -75,26 +79,28 @@ const CmsPanel = () => {
     e.preventDefault();
     if (!title) return alert("Podaj tytuł!");
 
-    let payload = { title, author: username, password };
+    let payload = { title };
     let endpoint = '';
 
     if (activeSubTab === 'articles') {
       if (!content) return alert("Napisz treść artykułu!");
-      payload.content = content; endpoint = 'https://meczomat-api.onrender.com/api/articles';
+      payload.content = content; endpoint = `${API}/api/articles`;
     } else if (activeSubTab === 'videos') {
       const embedUrl = getYoutubeEmbedUrl(videoUrl);
       if (!embedUrl) return alert("Błędny link YouTube!");
-      payload.embedUrl = embedUrl; endpoint = 'https://meczomat-api.onrender.com/api/videos';
+      payload.embedUrl = embedUrl; endpoint = `${API}/api/videos`;
     } else if (activeSubTab === 'streams') {
       const embedUrl = getYoutubeEmbedUrl(videoUrl);
       if (!embedUrl) return alert("Błędny link YouTube!");
-      payload.embedUrl = embedUrl; endpoint = 'https://meczomat-api.onrender.com/api/streams';
+      payload.embedUrl = embedUrl; endpoint = `${API}/api/streams`;
     }
     
     setIsSubmitting(true);
     try {
       const res = await fetch(endpoint, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(payload)
       });
       if (res.ok) { setTitle(''); setContent(''); setVideoUrl(''); fetchData(); } 
       else alert("Brak uprawnień lub błąd bazy!");
@@ -105,12 +111,16 @@ const CmsPanel = () => {
   const handleDelete = async (id, type) => {
     if(!window.confirm("Na pewno usunąć?")) return;
     let endpoint = '';
-    if (type === 'article') endpoint = 'https://meczomat-api.onrender.com/api/articles/delete';
-    if (type === 'video') endpoint = 'https://meczomat-api.onrender.com/api/videos/delete';
-    if (type === 'stream') endpoint = 'https://meczomat-api.onrender.com/api/streams/delete';
+    if (type === 'article') endpoint = `${API}/api/articles/delete`;
+    if (type === 'video') endpoint = `${API}/api/videos/delete`;
+    if (type === 'stream') endpoint = `${API}/api/streams/delete`;
     
     try {
-      await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, author: username, password }) });
+      await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ id })
+      });
       fetchData();
     } catch (e) { console.error(e); }
   };

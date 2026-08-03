@@ -1,0 +1,4 @@
+.env
+.env.local
+node_modules/
+meczomat2.0/node_modules/

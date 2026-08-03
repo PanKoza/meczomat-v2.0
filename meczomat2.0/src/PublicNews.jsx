@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API from './api';
 
 const PublicNews = () => {
   const [articles, setArticles] = useState([]);
@@ -10,9 +11,9 @@ const PublicNews = () => {
     const fetchData = async () => {
       try {
         const [artRes, vidRes, streamRes] = await Promise.all([
-          fetch('https://meczomat-api.onrender.com/api/articles'),
-          fetch('https://meczomat-api.onrender.com/api/videos'),
-          fetch('https://meczomat-api.onrender.com/api/streams')
+          fetch(`${API}/api/articles`),
+          fetch(`${API}/api/videos`),
+          fetch(`${API}/api/streams`)
         ]);
         setArticles(await artRes.json());
         setVideos(await vidRes.json());

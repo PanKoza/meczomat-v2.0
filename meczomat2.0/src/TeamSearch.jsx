@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API from './api';
 
 const TeamSearch = ({ 
   leagueId, 
@@ -16,7 +17,7 @@ const TeamSearch = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`https://meczomat-api.onrender.com/api/mecze?liga=${leagueId}`);
+        const res = await fetch(`${API}/api/mecze?liga=${leagueId}`);
         const meczeData = await res.json();
         setMatches(meczeData);
       } catch (error) {
