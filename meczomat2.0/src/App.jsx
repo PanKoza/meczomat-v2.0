@@ -6,6 +6,7 @@ import MatchList from './MatchList';
 import TeamSearch from './TeamSearch';
 import CmsPanel from './CmsPanel';
 import PublicNews from './PublicNews';
+import CookieConsent from './CookieConsent';
 
 // --- ROZBUDOWANA STRUKTURA LIG ---
 const LEAGUE_STRUCTURE = {
@@ -253,6 +254,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col font-sans relative">
+      <CookieConsent />
       {/* ===== NAVBAR ===== */}
       <nav className="sticky top-0 z-50 glass-nav animate-fade-in-down">
         <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
