@@ -363,7 +363,7 @@ function App() {
 
             {/* Favourite team widget */}
             {favoriteTeam && (
-              <section className="max-w-5xl mx-auto px-5 pt-8">
+              <section className="max-w-[960px] mx-auto px-6 py-10">
                 <div className="fav-widget flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5">
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--c-accent)' }}>★ Twój ulubiony klub</p>

@@ -622,7 +622,7 @@ button, a, [role="button"] {
 /* ── Hero section ───────────────────────────────────────────── */
 .hero-section {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   background: var(--c-base);
   border-bottom: 1px solid var(--c-border);
   padding: 80px 24px 72px;
@@ -639,6 +639,7 @@ button, a, [role="button"] {
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  overflow: hidden;
 }
 
 .hero-orb {
