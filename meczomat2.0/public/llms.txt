@@ -1,0 +1,57 @@
+# Meczomat
+
+> Meczomat.pl to serwis z wynikami meczów piłkarskich, tabelami ligowymi i terminarzami spotkań ze wszystkich szczebli rozgrywek piłkarskich w Polsce — od Ekstraklasy aż po B-klasę. Dane z 16 województw, aktualizacje 24/7.
+
+## Czym jest Meczomat?
+
+Meczomat to polska platforma sportowa skupiona na **niższych ligach piłkarskich**: IV lidze, V lidze, klasie okręgowej, A-klasie i B-klasie. Uzupełniamy dane o ligi profesjonalne: Ekstraklasę, I Ligę, II Ligę i III Ligę. Serwis umożliwia wyszukiwanie drużyn po nazwie i przeglądanie wyników z całej Polski.
+
+## Dostępne dane
+
+- **Tabele ligowe** — klasyfikacja drużyn po każdej kolejce sezonu
+- **Terminarze meczów** — daty, godziny i miejsca spotkań
+- **Wyniki na żywo** — aktualizowane na bieżąco w trakcie weekendowych kolejek
+- **Wyszukiwarka drużyn** — ponad 1 000 klubów z całej Polski
+- **Centrum Kibica** — skróty wideo, transmisje i artykuły
+
+## Struktura rozgrywek w Polsce
+
+Meczomat obejmuje następujące szczeble:
+
+| Poziom | Nazwa | Zasięg |
+|--------|-------|--------|
+| 1 | Ekstraklasa | Ogólnopolski |
+| 2 | I Liga (Betclic 1. Liga) | Ogólnopolski |
+| 3 | II Liga | Ogólnopolski |
+| 4 | III Liga | Regionalny (4 grupy) |
+| 5 | IV Liga | Wojewódzki (16 grup) |
+| 6 | V Liga | Subregionalny |
+| 7 | Klasa Okręgowa (Okręgówka) | Okręgowy |
+| 8 | A-Klasa | Lokalny |
+| 9 | B-Klasa | Lokalny |
+
+## Zasięg geograficzny
+
+Dane dostępne dla wszystkich 16 województw: dolnośląskie, kujawsko-pomorskie, lubelskie, lubuskie, łódzkie, małopolskie, mazowieckie, opolskie, podkarpackie, podlaskie, pomorskie, śląskie, świętokrzyskie, warmińsko-mazurskie, wielkopolskie, zachodniopomorskie.
+
+## Często zadawane pytania
+
+**Czym jest IV liga piłkarska w Polsce?**
+IV liga to piąty poziom rozgrywek piłkarskich w Polsce (po Ekstraklasie, I Lidze, II Lidze i III Lidze). Rozgrywana jest w każdym województwie osobno, co oznacza 16 grup regionalnych.
+
+**Czym jest klasa okręgowa (okręgówka)?**
+Klasa okręgowa to siódmy poziom rozgrywek — pierwszy szczebel stricte lokalny, rozgrywany w okręgach każdego województwa. Zwycięzca uzyskuje awans do V ligi.
+
+**Czy Meczomat pokazuje wyniki A-klasy i B-klasy?**
+Tak. Meczomat jako jeden z nielicznych polskich serwisów agreguje dane z najniższych szczebli — A-klasy i B-klasy — z wielu okręgów w Polsce.
+
+**Jak często aktualizowane są wyniki?**
+Wyniki aktualizowane są automatycznie, 24/7. W dni meczowe dane pojawiają się na bieżąco.
+
+## Linki
+
+- Strona główna: https://meczomat.pl/
+- Rozgrywki: https://meczomat.pl/rozgrywki
+- IV Liga: https://meczomat.pl/rozgrywki/iv-liga
+- Ekstraklasa: https://meczomat.pl/rozgrywki/ekstraklasa
+- Centrum Kibica: https://meczomat.pl/centrum-kibica

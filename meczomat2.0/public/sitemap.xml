@@ -1,5 +1,141 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- ── Strony główne ──────────────────────────────────────── -->
+  <url>
+    <loc>https://meczomat.pl/</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://meczomat.pl/Group_2.jpg</image:loc>
+      <image:title>Meczomat – wyniki niższych lig piłkarskich w Polsce</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://meczomat.pl/rozgrywki</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <url>
+    <loc>https://meczomat.pl/centrum-kibica</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- ── Ogólnopolskie ──────────────────────────────────────── -->
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/ekstraklasa</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/1-liga</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.88</priority>
+  </url>
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/2-liga</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.86</priority>
+  </url>
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/3-liga-gr1</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/3-liga-gr2</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/3-liga-gr3</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/3-liga-gr4</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <!-- ── Dolnośląskie ───────────────────────────────────────── -->
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/iv-liga</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/okregowka-Wroclaw</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/okregowka-Legnica</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/okregowka-Jelenia-Gora</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://meczomat.pl/rozgrywki/okregowka-Walbrzych</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- ── A-Klasa Dolnośląska ────────────────────────────────── -->
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Wroclaw-I</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Wroclaw-II</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Wroclaw-III</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Wroclaw-IV</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Legnica-I</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Legnica-II</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Legnica-III</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Walbrzych-I</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Walbrzych-II</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Walbrzych-III</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Jelenia-Gora-I</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Jelenia-Gora-II</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Jelenia-Gora-III</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.70</priority></url>
+
+  <!-- ── B-Klasa Dolnośląska ────────────────────────────────── -->
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Wroclaw-I</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Wroclaw-II</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Wroclaw-III</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Wroclaw-IV</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Wroclaw-V</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Legnica-I</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Legnica-II</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Legnica-III</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Walbrzych-I</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Walbrzych-II</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Jelenia-Gora-I</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Jelenia-Gora-II</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Jelenia-Gora-III</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
+
+</urlset>
+
   <url>
     <loc>https://meczomat.pl/</loc>
     <lastmod>2026-04-20</lastmod>

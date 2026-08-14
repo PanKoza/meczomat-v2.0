@@ -1,5 +1,15 @@
 User-agent: *
 Allow: /
 Disallow: /cms
+Disallow: /cms/
+Crawl-delay: 1
+
+# Allow indexing all league pages
+Allow: /rozgrywki/
+Allow: /centrum-kibica
+
+# Block internal/admin paths
+Disallow: /api/
+Disallow: /_vite/
 
 Sitemap: https://meczomat.pl/sitemap.xml

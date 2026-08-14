@@ -1,11 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import API from './api';
 
+const TABS = [
+  { id: 'articles', label: 'Wiadomości',  icon: '📰' },
+  { id: 'videos',   label: 'Skróty wideo', icon: '🎥' },
+  { id: 'streams',  label: 'Transmisje',   icon: '🔴', live: true },
+];
+
+const Empty = ({ icon, text, sub }) => (
+  <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 16, padding: '4rem 2rem', textAlign: 'center' }}>
+    <div style={{ fontSize: '2.5rem', opacity: 0.2, marginBottom: 12 }}>{icon}</div>
+    <p style={{ color: 'var(--c-text-2)', fontWeight: 600 }}>{text}</p>
+    {sub && <p style={{ color: 'var(--c-text-3)', fontSize: '0.875rem', marginTop: 4 }}>{sub}</p>}
+  </div>
+);
+
 const PublicNews = () => {
   const [articles, setArticles] = useState([]);
-  const [videos, setVideos] = useState([]);
-  const [streams, setStreams] = useState([]); // Transmisje na żywo
-  const [activeTab, setActiveTab] = useState('articles'); // 'articles', 'videos', 'streams'
+  const [videos,   setVideos]   = useState([]);
+  const [streams,  setStreams]   = useState([]);
+  const [activeTab, setActiveTab] = useState('articles');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -13,120 +27,133 @@ const PublicNews = () => {
         const [artRes, vidRes, streamRes] = await Promise.all([
           fetch(`${API}/api/articles`),
           fetch(`${API}/api/videos`),
-          fetch(`${API}/api/streams`)
+          fetch(`${API}/api/streams`),
         ]);
         setArticles(await artRes.json());
         setVideos(await vidRes.json());
         setStreams(await streamRes.json());
-      } catch (error) {
-        console.error("Błąd pobierania danych:", error);
+      } catch (err) {
+        console.error('Błąd pobierania danych:', err);
       }
     };
     fetchData();
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto animate-fade-in">
-      <div className="text-center mb-10">
-        <h1 className="text-3xl md:text-5xl font-black text-brand-cream mb-3">Centrum Kibica – wiadomości z niższych lig</h1>
-        <p className="text-base text-brand-cream/30">Najnowsze informacje, skróty meczów i transmisje na żywo z IV ligi, V ligi, klasy okręgowej i niższych klas rozgrywkowych.</p>
+    <div style={{ maxWidth: 900, margin: '0 auto', padding: '2.5rem 1.25rem' }} className="animate-fade-in">
+
+      <header style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+        <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', fontWeight: 900, color: 'var(--c-text)', lineHeight: 1.2, marginBottom: 10 }}>
+          Centrum Kibica
+        </h1>
+        <p style={{ color: 'var(--c-text-2)', fontSize: '1rem', maxWidth: 560, margin: '0 auto' }}>
+          Wiadomości, skróty meczów i transmisje na żywo z IV&nbsp;ligi, V&nbsp;ligi, okręgówki i niższych klas rozgrywkowych.
+        </p>
+      </header>
+
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: '2rem', flexWrap: 'wrap' }}>
+        {TABS.map(tab => {
+          const active = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '0.6rem 1.25rem', borderRadius: 10,
+                fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
+                transition: 'all 0.2s',
+                background: active ? (tab.live ? 'rgba(239,68,68,0.12)' : 'rgba(34,197,94,0.1)') : 'var(--c-surface)',
+                border: `1px solid ${active ? (tab.live ? 'rgba(239,68,68,0.35)' : 'rgba(34,197,94,0.3)') : 'var(--c-border)'}`,
+                color: active ? (tab.live ? '#f87171' : 'var(--c-accent)') : 'var(--c-text-2)',
+              }}>
+              {tab.icon} {tab.label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* TABS */}
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-10">
-        <button onClick={() => setActiveTab('articles')}
-          className={`px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-bold text-sm transition-all duration-300 border ${
-            activeTab === 'articles'
-              ? 'bg-brand-accent/10 text-brand-accent border-brand-accent/20 shadow-[0_0_16px_rgba(0,255,136,0.08)]'
-              : 'text-brand-cream/35 border-brand-cream/8 hover:border-brand-cream/15 hover:text-brand-cream/60'
-          }`}>
-          📰 Wiadomości
-        </button>
-        <button onClick={() => setActiveTab('videos')}
-          className={`px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-bold text-sm transition-all duration-300 border ${
-            activeTab === 'videos'
-              ? 'bg-brand-accent/10 text-brand-accent border-brand-accent/20 shadow-[0_0_16px_rgba(0,255,136,0.08)]'
-              : 'text-brand-cream/35 border-brand-cream/8 hover:border-brand-cream/15 hover:text-brand-cream/60'
-          }`}>
-          🎥 Skróty Wideo
-        </button>
-        <button onClick={() => setActiveTab('streams')}
-          className={`px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-bold text-sm transition-all duration-300 border flex items-center gap-2 ${
-            activeTab === 'streams'
-              ? 'bg-red-500/10 text-red-400 border-red-500/20 shadow-[0_0_16px_rgba(239,68,68,0.08)]'
-              : 'text-brand-cream/35 border-brand-cream/8 hover:border-red-500/20 hover:text-red-400/60'
-          }`}>
-          <span className={activeTab === 'streams' ? 'animate-pulse' : ''}>🔴</span> Transmisje
-        </button>
-      </div>
-
-      {/* ARTICLES */}
       {activeTab === 'articles' && (
-        <div className="space-y-5 max-w-4xl mx-auto">
-          {articles.map(article => (
-            <article key={article.id} className="glass-card p-6 sm:p-8 rounded-2xl relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-[2px] h-full bg-brand-accent/40"></div>
-              <h2 className="text-2xl sm:text-3xl font-black text-brand-cream mb-3">{article.title}</h2>
-              <div className="flex items-center gap-3 text-[10px] font-bold text-brand-cream/20 uppercase tracking-widest mb-5">
-                <span className="bg-brand-accent/8 text-brand-accent/60 px-2.5 py-1 rounded">✍️ {article.author}</span>
-                <span>·</span>
-                <span>{article.date}</span>
-              </div>
-              <p className="text-brand-cream/45 leading-relaxed whitespace-pre-wrap">{article.content}</p>
-            </article>
-          ))}
-          {articles.length === 0 && <div className="text-center text-brand-cream/20 py-10 font-medium">Brak wiadomości. Zajrzyj tu później!</div>}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 720, margin: '0 auto', width: '100%' }}>
+          {articles.length === 0
+            ? <Empty icon="📰" text="Brak wiadomości. Zajrzyj tu później!" />
+            : articles.map(a => (
+              <article key={a.id} style={{
+                background: 'var(--c-surface)', border: '1px solid var(--c-border)',
+                borderRadius: 16, overflow: 'hidden',
+              }}>
+                {/* Header bar */}
+                <div style={{ padding: '1.5rem 2rem 1.25rem', borderBottom: '1px solid var(--c-border)' }}>
+                  <h2 style={{ fontSize: '1.375rem', fontWeight: 800, color: 'var(--c-text)', lineHeight: 1.35, marginBottom: 12 }}>{a.title}</h2>
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span style={{ background: 'rgba(34,197,94,0.1)', color: 'var(--c-accent)', fontSize: '0.75rem', fontWeight: 700, padding: '3px 10px', borderRadius: 99 }}>
+                      ✍️ {a.author}
+                    </span>
+                    <span style={{ color: 'var(--c-text-3)', fontSize: '0.8rem' }}>📅 {a.date}</span>
+                  </div>
+                </div>
+                {/* Body */}
+                <div style={{ padding: '1.5rem 2rem' }}>
+                  {a.content.split('\n\n').filter(Boolean).map((para, i) => (
+                    <p key={i} style={{
+                      color: 'var(--c-text)', fontSize: '1rem', lineHeight: 1.8,
+                      marginBottom: i < a.content.split('\n\n').length - 1 ? '1.1rem' : 0,
+                    }}>{para.trim()}</p>
+                  ))}
+                </div>
+              </article>
+            ))
+          }
         </div>
       )}
 
-      {/* VIDEOS */}
       {activeTab === 'videos' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {videos.map(video => (
-            <div key={video.id} className="glass-card rounded-2xl overflow-hidden group">
-              <div className="relative pt-[56.25%] bg-black/30 overflow-hidden">
-                <iframe className="absolute top-0 left-0 w-full h-full transform group-hover:scale-[1.02] transition-transform duration-500" src={video.embedUrl} title={video.title} frameBorder="0" allowFullScreen></iframe>
-              </div>
-              <div className="p-5">
-                <h3 className="font-bold text-brand-cream line-clamp-2 mb-2">{video.title}</h3>
-                <div className="text-[10px] text-brand-cream/15 font-bold uppercase tracking-widest flex justify-between">
-                  <span>🎥 {video.author}</span>
-                  <span>{video.date}</span>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 16 }}>
+          {videos.length === 0
+            ? <div style={{ gridColumn: '1/-1' }}><Empty icon="🎥" text="Brak skrótów wideo." /></div>
+            : videos.map(v => (
+              <div key={v.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
+                <div style={{ position: 'relative', paddingTop: '56.25%', background: '#000' }}>
+                  <iframe style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                    src={v.embedUrl} title={v.title} frameBorder="0" allowFullScreen />
+                </div>
+                <div style={{ padding: '1rem 1.25rem' }}>
+                  <h3 style={{ fontWeight: 700, color: 'var(--c-text)', marginBottom: 6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{v.title}</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--c-text-3)', fontSize: '0.75rem', fontWeight: 600 }}>
+                    <span>🎥 {v.author}</span>
+                    <span>{v.date}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-          {videos.length === 0 && <div className="col-span-2 text-center text-brand-cream/20 py-10 font-medium">Brak skrótów wideo.</div>}
+            ))
+          }
         </div>
       )}
 
-      {/* STREAMS */}
       {activeTab === 'streams' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {streams.map(stream => (
-            <div key={stream.id} className="glass-card rounded-2xl overflow-hidden border-red-500/10 group">
-              <div className="relative pt-[56.25%] bg-black/30 overflow-hidden border-b border-red-500/20">
-                <iframe className="absolute top-0 left-0 w-full h-full" src={stream.embedUrl} title={stream.title} frameBorder="0" allow="autoplay; fullscreen" allowFullScreen></iframe>
-                <div className="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-lg animate-pulse uppercase tracking-widest">
-                  <span className="w-1.5 h-1.5 bg-white rounded-full"></span> Live
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 16 }}>
+          {streams.length === 0
+            ? <div style={{ gridColumn: '1/-1' }}><Empty icon="🏟️" text="Brak transmisji na żywo w tym momencie." sub="Zaglądaj tu w weekendy podczas trwania kolejek!" /></div>
+            : streams.map(s => (
+              <div key={s.id} style={{ background: 'var(--c-surface)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 14, overflow: 'hidden' }}>
+                <div style={{ position: 'relative', paddingTop: '56.25%', background: '#000', borderBottom: '1px solid rgba(239,68,68,0.15)' }}>
+                  <iframe style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                    src={s.embedUrl} title={s.title} frameBorder="0" allow="autoplay; fullscreen" allowFullScreen />
+                  <div style={{ position: 'absolute', top: 10, left: 10, background: '#dc2626', color: '#fff', fontSize: '0.7rem', fontWeight: 800, padding: '3px 10px', borderRadius: 6, letterSpacing: '0.06em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ width: 6, height: 6, background: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'pulse-dot 1.2s ease-in-out infinite' }} />
+                    LIVE
+                  </div>
+                </div>
+                <div style={{ padding: '1rem 1.25rem' }}>
+                  <h3 style={{ fontWeight: 800, color: '#f87171', marginBottom: 6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{s.title}</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(248,113,113,0.5)', fontSize: '0.75rem', fontWeight: 600 }}>
+                    <span>🔴 Transmisja na żywo</span>
+                    <span>{s.date}</span>
+                  </div>
                 </div>
               </div>
-              <div className="p-5">
-                <h3 className="font-black text-lg text-red-400 line-clamp-2 mb-2">{stream.title}</h3>
-                <div className="text-[10px] text-red-400/30 font-bold uppercase tracking-widest flex justify-between">
-                  <span>🔴 Transmisja</span>
-                  <span>{stream.date}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-          {streams.length === 0 && (
-            <div className="col-span-1 lg:col-span-2 flex flex-col items-center justify-center glass-card rounded-2xl py-16 text-center">
-              <span className="text-4xl mb-3 opacity-20">🏟️</span>
-              <p className="text-brand-cream/25 font-medium">Brak transmisji na żywo w tym momencie.</p>
-              <p className="text-brand-cream/12 mt-1 text-sm">Zaglądaj tu w weekendy podczas trwania kolejek!</p>
-            </div>
-          )}
+            ))
+          }
         </div>
       )}
     </div>

@@ -1,6 +1,206 @@
 <!doctype html>
-<html lang="pl">
+<html lang="pl" dir="ltr">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ── Favicon & PWA ──────────────────────────────────────── -->
+    <link rel="icon" type="image/jpeg" href="/Group_2.jpg" />
+    <link rel="apple-touch-icon" href="/Group_2.jpg" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- ── Core Web Vitals: preconnect ───────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://www.youtube.com" />
+    <link rel="preconnect" href="https://i.ytimg.com" />
+    <link rel="dns-prefetch" href="https://meczomat.pl" />
+
+    <!-- ── Preload critical assets ────────────────────────────── -->
+    <link rel="preload" href="/Group_2.jpg" as="image" fetchpriority="high" />
+
+    <!-- ── Primary SEO ────────────────────────────────────────── -->
+    <title>Meczomat – Wyniki niższych lig piłkarskich na żywo | IV liga, V liga, okręgówka, A-klasa, B-klasa</title>
+    <meta name="description" content="Meczomat – wyniki meczów, tabele ligowe i terminarze z niższych lig piłkarskich w Polsce. IV liga, V liga, klasa okręgowa, A-klasa, B-klasa. Wszystkie 16 województw, aktualizacje 24/7." />
+    <meta name="keywords" content="wyniki niższych lig, IV liga wyniki, V liga wyniki, klasa okręgowa wyniki, A-klasa wyniki, B-klasa wyniki, tabela IV liga, tabela V liga, piłka nożna niższe ligi, wyniki piłkarskie Polska, tabele ligowe, terminarz meczów, wyniki meczów na żywo, ekstraklasa wyniki, meczomat, niższe klasy rozgrywkowe, liga okręgowa tabela, polska piłka nożna, wyniki regionalne, 3 liga polska" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="author" content="Meczomat" />
+    <meta name="theme-color" content="#0c1410" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- ── Canonical + Locale ────────────────────────────────── -->
+    <link rel="canonical" href="https://meczomat.pl/" />
+    <meta name="language" content="Polish" />
+    <meta http-equiv="content-language" content="pl" />
+    <meta name="geo.region" content="PL" />
+    <meta name="geo.placename" content="Polska" />
+    <link rel="alternate" hreflang="pl" href="https://meczomat.pl/" />
+    <link rel="alternate" hreflang="x-default" href="https://meczomat.pl/" />
+
+    <!-- ── Open Graph ─────────────────────────────────────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Meczomat" />
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:title" content="Meczomat – Wyniki niższych lig piłkarskich na żywo" />
+    <meta property="og:description" content="Sprawdź wyniki, tabele i terminarze: IV liga, V liga, klasa okręgowa, A-klasa, B-klasa. Wszystkie województwa w Polsce. Automatyczne aktualizacje 24/7." />
+    <meta property="og:url" content="https://meczomat.pl/" />
+    <meta property="og:image" content="https://meczomat.pl/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Meczomat – wyniki meczów piłkarskich niższych lig" />
+
+    <!-- ── Twitter Card ───────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@meczomat" />
+    <meta name="twitter:title" content="Meczomat – Wyniki niższych lig piłkarskich na żywo" />
+    <meta name="twitter:description" content="IV liga, V liga, okręgówka, A-klasa, B-klasa – wyniki, tabele i terminarze ze wszystkich województw w Polsce." />
+    <meta name="twitter:image" content="https://meczomat.pl/og-image.jpg" />
+    <meta name="twitter:image:alt" content="Meczomat – wyniki meczów piłkarskich" />
+
+    <!-- ── JSON-LD: WebSite + SearchAction ───────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Meczomat",
+      "alternateName": "meczomat.pl",
+      "url": "https://meczomat.pl/",
+      "description": "Wyniki meczów, tabele i terminarze niższych lig piłkarskich w Polsce – IV liga, V liga, klasa okręgowa, A-klasa, B-klasa.",
+      "inLanguage": "pl",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Meczomat",
+        "url": "https://meczomat.pl/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://meczomat.pl/Group_2.jpg",
+          "width": 512,
+          "height": 512
+        }
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://meczomat.pl/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- ── JSON-LD: Organization ──────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Meczomat",
+      "url": "https://meczomat.pl/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://meczomat.pl/Group_2.jpg"
+      },
+      "description": "Serwis z wynikami, tabelami i terminarzami niższych lig piłkarskich w Polsce.",
+      "foundingDate": "2024",
+      "areaServed": {
+        "@type": "Country",
+        "name": "Polska",
+        "sameAs": "https://www.wikidata.org/wiki/Q36"
+      },
+      "knowsAbout": [
+        "Piłka nożna",
+        "IV liga polska",
+        "V liga polska",
+        "Klasa okręgowa",
+        "A-klasa",
+        "B-klasa",
+        "Ekstraklasa"
+      ]
+    }
+    </script>
+
+    <!-- ── JSON-LD: WebPage (HomePage) ────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Meczomat – Wyniki niższych lig piłkarskich na żywo",
+      "url": "https://meczomat.pl/",
+      "description": "Wyniki meczów, tabele ligowe i terminarze z niższych lig piłkarskich w Polsce. IV liga, V liga, klasa okręgowa, A-klasa, B-klasa. 16 województw.",
+      "inLanguage": "pl",
+      "isPartOf": { "@type": "WebSite", "url": "https://meczomat.pl/" },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Strona główna", "item": "https://meczomat.pl/" }
+        ]
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": "Ligi piłkarskie w Polsce",
+        "description": "Przegląd klas rozgrywkowych polskiej piłki nożnej",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "PKO BP Ekstraklasa", "url": "https://meczomat.pl/rozgrywki/ekstraklasa" },
+          { "@type": "ListItem", "position": 2, "name": "Betclic 1. Liga", "url": "https://meczomat.pl/rozgrywki/1-liga" },
+          { "@type": "ListItem", "position": 3, "name": "Betclic 2. Liga", "url": "https://meczomat.pl/rozgrywki/2-liga" },
+          { "@type": "ListItem", "position": 4, "name": "3. Liga", "url": "https://meczomat.pl/rozgrywki/3-liga-gr1" },
+          { "@type": "ListItem", "position": 5, "name": "IV Liga", "url": "https://meczomat.pl/rozgrywki/iv-liga" },
+          { "@type": "ListItem", "position": 6, "name": "Klasa Okręgowa", "url": "https://meczomat.pl/rozgrywki/okregowka-Wroclaw" },
+          { "@type": "ListItem", "position": 7, "name": "A-Klasa", "url": "https://meczomat.pl/rozgrywki/Decathlon-Klasa-A-Wroclaw-I" },
+          { "@type": "ListItem", "position": 8, "name": "B-Klasa", "url": "https://meczomat.pl/rozgrywki/Klasa-B-Wroclaw-I" }
+        ]
+      }
+    }
+    </script>
+
+    <!-- ── JSON-LD: FAQPage ────────────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Gdzie sprawdzić wyniki IV ligi?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Wyniki IV ligi znajdziesz na Meczomat.pl. Serwis udostępnia aktualne tabele, terminarze i wyniki meczów IV ligi ze wszystkich województw w Polsce, w tym IV Ligi Dolnośląskiej."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak sprawdzić tabelę klasy okręgowej?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Tabele klasy okręgowej dostępne są na Meczomat.pl w sekcji Rozgrywki. Wybierz województwo, a następnie Klasę Okręgową, aby zobaczyć aktualną tabelę i terminarz meczów."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Gdzie obejrzeć wyniki A-klasy i B-klasy?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Wyniki A-klasy i B-klasy są dostępne na Meczomat.pl. Serwis obejmuje rozgrywki ze wszystkich 16 województw w Polsce, w tym grupy: Wrocław, Legnica, Wałbrzych i Jelenia Góra."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy Meczomat ma wyniki na żywo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Tak, Meczomat.pl aktualizuje wyniki meczów 24/7 automatycznie. Tabele ligowe i wyniki spotkań są odświeżane na bieżąco dla wszystkich klas rozgrywkowych."
+          }
+        }
+      ]
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
     <meta charset="UTF-8" />
     <link rel="icon" type="image/jpeg" href="/Group_2.jpg" />
     <link rel="apple-touch-icon" href="/Group_2.jpg" />
