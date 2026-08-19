@@ -36,7 +36,7 @@ const REGIONAL = [
   { id: 'V Liga',         name: '5. Liga',   icon: '📍', color: '#16a34a', desc: 'Piąty szczebel ligowy' },
   { id: 'Klasa Okręgowa', name: 'Okręgówka', icon: '🎯', color: '#0891b2', desc: 'Prawdziwa polska piłka nożna' },
   { id: 'A-Klasa',        name: 'A-Klasa',   icon: '🟢', color: '#2563eb', desc: 'Amatorski futbol na poziomie' },
-  { id: 'B-Klasa',        name: 'B-Klasa',   icon: '🟡', color: '#7c3aed', desc: 'Piłka dla każdego kibica' },
+  { id: 'B-Klasa',        name: 'B-Klasa',   icon: '🍺', color: '#7c3aed', desc: 'Piłka dla każdego kibica' },
 ];
 
 function useInView(threshold = 0.12) {

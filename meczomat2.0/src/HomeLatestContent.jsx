@@ -168,7 +168,7 @@ export default function HomeLatestContent({ latestContent }) {
           <div style={{ marginTop: '3rem' }}>
             <div className="leagues-header" style={{ marginBottom: '1.5rem' }}>
               <h2 className="leagues-h2">Kluby na Facebooku</h2>
-              <p className="leagues-sub">Profile wybranych klubów z całej Polski. Obserwuj i bądź na bieżąco.</p>
+              <p className="leagues-sub">Tutaj znajdziesz wszystkie Fan Page swoich ulubionych drużyn.</p>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
               {fbClubs.map(club => {

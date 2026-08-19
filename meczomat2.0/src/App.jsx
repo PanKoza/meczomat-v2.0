@@ -84,7 +84,7 @@ const WIZARD_LEVELS = [
   { id: 'V Liga',          name: '5. Liga',      icon: '📍', type: 'regional',  desc: 'Rozgrywki regionalne' },
   { id: 'Klasa Okręgowa',  name: 'Okręgówka',   icon: '🎯', type: 'regional',  desc: 'Okręgowy poziom rozgrywek' },
   { id: 'A-Klasa',         name: 'A-Klasa',      icon: '🟢', type: 'regional',  desc: 'Klasa A' },
-  { id: 'B-Klasa',         name: 'B-Klasa',      icon: '🟡', type: 'regional',  desc: 'Klasa B' },
+  { id: 'B-Klasa',         name: 'B-Klasa',      icon: '🍺', type: 'regional',  desc: 'Klasa B' },
 ];
 
 function App() {
