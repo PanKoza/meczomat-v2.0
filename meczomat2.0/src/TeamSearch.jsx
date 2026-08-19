@@ -13,6 +13,7 @@ const TeamSearch = ({
   const [matches, setMatches] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTeam, setSelectedTeam] = useState(null);
+  const [fbClub, setFbClub] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,6 +30,7 @@ const TeamSearch = ({
     if (!targetTeamProfile) {
       setSelectedTeam(null);
       setSearchTerm('');
+      setFbClub(null);
     }
   }, [leagueId]);
 
@@ -38,6 +40,21 @@ const TeamSearch = ({
       setTargetTeamProfile(null); 
     }
   }, [targetTeamProfile, setTargetTeamProfile]);
+
+  // Fetch FB page for selected team
+  useEffect(() => {
+    if (!selectedTeam) { setFbClub(null); return; }
+    fetch(`${API}/api/club-facebook`)
+      .then(r => r.json())
+      .then(data => {
+        if (!Array.isArray(data)) return;
+        const match = data.find(c => c.clubName.toLowerCase() === selectedTeam.toLowerCase())
+          || data.find(c => selectedTeam.toLowerCase().includes(c.clubName.toLowerCase()))
+          || data.find(c => c.clubName.toLowerCase().includes(selectedTeam.toLowerCase()));
+        setFbClub(match || null);
+      })
+      .catch(() => {});
+  }, [selectedTeam]);
 
   // Teraz wyszukiwarka filtruje globalny słownik (globalTeams)!
   const filteredTeams = searchTerm
@@ -153,35 +170,91 @@ const TeamSearch = ({
             <div className="neon-line my-6"></div>
 
             {/* TERMINARZ */}
-            <div>
-              <h3 className="text-sm font-bold text-brand-cream/25 uppercase tracking-widest mb-4">📅 Pełny Terminarz</h3>
-              <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-                {teamMatches.length > 0 ? teamMatches.map((match, idx) => (
-                  <div key={match.id} className="match-card flex items-center justify-between p-3.5 rounded-lg text-sm glass-surface">
-                    <div className="w-1/4 text-brand-cream/20 font-bold text-[10px] uppercase tracking-wider">
-                      {match.dataWizualna}<br/>
-                      <span className="text-brand-accent/50">Kol. {match.kolejka}</span>
-                    </div>
-                    
-                    <div className="w-2/4 flex justify-between items-center px-2 sm:px-4 font-medium">
-                      <span className={`w-2/5 text-right truncate text-xs ${match.gospodarz.nazwa === selectedTeam ? 'font-black text-brand-accent' : 'text-brand-cream/40'}`}>
-                        {match.gospodarz.nazwa}
-                      </span>
-                      
-                      <span className={`w-1/5 text-center mx-2 px-2.5 py-1 rounded-md font-black text-white text-xs ${match.status === 'Zakończony' ? 'score-badge' : 'bg-brand-cream/5 text-brand-cream/15'}`}>
-                        {match.status === 'Zakończony' ? `${match.wynikGospodarz}:${match.wynikGosc}` : '-:-'}
-                      </span>
-                      
-                      <span className={`w-2/5 text-left truncate text-xs ${match.gosc.nazwa === selectedTeam ? 'font-black text-brand-accent' : 'text-brand-cream/40'}`}>
-                        {match.gosc.nazwa}
-                      </span>
-                    </div>
+            {(() => {
+              const PL_MONTHS = { sty:0,lut:1,mar:2,kwi:3,maj:4,cze:5,lip:6,sie:7,wrz:8,paz:9,lis:10,gru:11 };
+              const parseDate = (str) => {
+                if (!str) return new Date(0);
+                const d = str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+                if (d) return new Date(+d[3], +d[2]-1, +d[1]);
+                const p = str.match(/^(\d{1,2})\s+([a-zA-Ząę]+)\s+(\d{4})/i);
+                if (p) { const m = PL_MONTHS[p[2].toLowerCase().slice(0,3)]; if (m!==undefined) return new Date(+p[3],m,+p[1]); }
+                return new Date(str);
+              };
+              const upcoming = [...teamMatches].filter(m => m.status !== 'Zakończony').sort((a,b) => parseDate(a.dataWizualna)-parseDate(b.dataWizualna));
+              const played   = [...teamMatches].filter(m => m.status === 'Zakończony').sort((a,b) => parseDate(b.dataWizualna)-parseDate(a.dataWizualna));
+
+              const MatchRow = ({ match }) => (
+                <div className="match-card flex items-center justify-between p-3.5 rounded-lg text-sm glass-surface">
+                  <div className="w-1/4 text-brand-cream/20 font-bold text-[10px] uppercase tracking-wider">
+                    {match.dataWizualna}<br/>
+                    <span className="text-brand-accent/50">Kol. {match.kolejka}</span>
                   </div>
-                )) : (
-                  <p className="text-center text-brand-cream/20 text-sm">Brak meczów w aktualnie wybranej lidze.</p>
-                )}
-              </div>
-            </div>
+                  <div className="w-2/4 flex justify-between items-center px-2 sm:px-4 font-medium">
+                    <span className={`w-2/5 text-right truncate text-xs ${match.gospodarz.nazwa === selectedTeam ? 'font-black text-brand-accent' : 'text-brand-cream/40'}`}>{match.gospodarz.nazwa}</span>
+                    <span className={`w-1/5 text-center mx-2 px-2.5 py-1 rounded-md font-black text-white text-xs ${match.status === 'Zakończony' ? 'score-badge' : 'bg-brand-cream/5 text-brand-cream/15'}`}>
+                      {match.status === 'Zakończony' ? `${match.wynikGospodarz}:${match.wynikGosc}` : '-:-'}
+                    </span>
+                    <span className={`w-2/5 text-left truncate text-xs ${match.gosc.nazwa === selectedTeam ? 'font-black text-brand-accent' : 'text-brand-cream/40'}`}>{match.gosc.nazwa}</span>
+                  </div>
+                </div>
+              );
+
+              return teamMatches.length === 0 ? (
+                <p className="text-center text-brand-cream/20 text-sm">Brak meczów w aktualnie wybranej lidze.</p>
+              ) : (
+                <div className="space-y-6">
+                  {upcoming.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-brand-cream/25 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        📅 Nadchodzące mecze <span className="text-[10px] bg-brand-cream/5 text-brand-cream/20 px-2 py-0.5 rounded-full">{upcoming.length}</span>
+                      </h3>
+                      <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                        {upcoming.map(m => <MatchRow key={m.id} match={m} />)}
+                      </div>
+                    </div>
+                  )}
+                  {played.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-brand-cream/25 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        ✅ Rozegrane mecze <span className="text-[10px] bg-brand-accent/10 text-brand-accent/50 px-2 py-0.5 rounded-full">{played.length}</span>
+                      </h3>
+                      <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                        {played.map(m => <MatchRow key={m.id} match={m} />)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* FACEBOOK */}
+            {fbClub && (
+              <>
+                <div className="neon-line my-6"></div>
+                <div>
+                  <h3 className="text-sm font-bold text-brand-cream/25 uppercase tracking-widest mb-4">📘 Strona na Facebooku</h3>
+                  <div style={{ background: 'var(--c-surface,#12201a)', border: '1px solid rgba(59,130,246,0.22)', borderRadius: 14, overflow: 'hidden' }}>
+                    <div style={{ padding: '0.85rem 1.1rem', background: 'linear-gradient(135deg,rgba(59,130,246,0.1),rgba(37,99,235,0.06))', borderBottom: '1px solid rgba(59,130,246,0.14)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg,#1877f2,#0c52a3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', flexShrink: 0 }}>📘</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 800, color: 'var(--c-text,#edf2ed)', fontSize: '0.92rem' }}>{fbClub.clubName}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#60a5fa', marginTop: 1 }}>{fbClub.league}{fbClub.province ? ` · ${fbClub.province}` : ''}</div>
+                      </div>
+                      <a href={fbClub.facebookUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.68rem', fontWeight: 700, background: 'rgba(24,119,242,0.15)', color: '#93c5fd', padding: '4px 10px', borderRadius: 16, border: '1px solid rgba(59,130,246,0.3)', textDecoration: 'none' }}>Otwórz →</a>
+                    </div>
+                    <iframe
+                      src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(fbClub.facebookUrl)}&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId`}
+                      width="100%" height="600"
+                      style={{ border: 'none', display: 'block' }}
+                      scrolling="no" frameBorder="0" allowFullScreen
+                      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                      title={`Facebook - ${fbClub.clubName}`}
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
 
           </div>
         </div>
