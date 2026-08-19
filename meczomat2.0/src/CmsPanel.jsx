@@ -28,9 +28,29 @@ const CmsPanel = () => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
+  const [userRole, setUserRole] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [token, setToken] = useState(null);
+
+  // rejestracja
+  const [showRegister, setShowRegister] = useState(false);
+  const [regUsername, setRegUsername] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regMsg, setRegMsg] = useState('');
+
+  // profil
+  const [showProfile, setShowProfile] = useState(false);
+  const [profUsername, setProfUsername] = useState('');
+  const [profCurrent, setProfCurrent] = useState('');
+  const [profNew, setProfNew] = useState('');
+  const [profMsg, setProfMsg] = useState('');
+
+  // zarządzanie użytkownikami (admin)
+  const [showUsers, setShowUsers] = useState(false);
+  const [cmsUsers, setCmsUsers] = useState([]);
+  const [editUser, setEditUser] = useState(null); // { id, username, newUsername, newPassword }
+  const [usersMsg, setUsersMsg] = useState('');
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState(''); 
@@ -52,9 +72,10 @@ const CmsPanel = () => {
   useEffect(() => {
     fetchData();
     const savedUser = localStorage.getItem('meczomat_user');
+    const savedRole = localStorage.getItem('meczomat_role');
     const savedToken = localStorage.getItem('meczomat_token');
     if (savedUser && savedToken) {
-      setIsLoggedIn(true); setUsername(savedUser); setToken(savedToken);
+      setIsLoggedIn(true); setUsername(savedUser); setUserRole(savedRole || 'editor'); setToken(savedToken);
     }
   }, []);
 
@@ -90,16 +111,84 @@ const CmsPanel = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setIsLoggedIn(true); setToken(data.token);
-        localStorage.setItem('meczomat_user', username);
+        setIsLoggedIn(true); setToken(data.token); setUserRole(data.role);
+        localStorage.setItem('meczomat_user', data.username);
+        localStorage.setItem('meczomat_role', data.role);
         localStorage.setItem('meczomat_token', data.token);
+        setUsername(data.username);
       } else setLoginError(data.error);
-    } catch (error) { setLoginError("Błąd połączenia."); }
+    } catch { setLoginError("Błąd połączenia."); }
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false); setUsername(''); setPassword(''); setToken(null);
-    localStorage.removeItem('meczomat_user'); localStorage.removeItem('meczomat_token');
+    setIsLoggedIn(false); setUsername(''); setPassword(''); setToken(null); setUserRole('');
+    localStorage.removeItem('meczomat_user'); localStorage.removeItem('meczomat_token'); localStorage.removeItem('meczomat_role');
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault(); setRegMsg('');
+    try {
+      const res = await fetch(`${API}/api/register`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: regUsername, password: regPassword }),
+      });
+      const data = await res.json();
+      setRegMsg(data.error || data.message || 'Gotowe!');
+      if (!data.error) { setRegUsername(''); setRegPassword(''); }
+    } catch { setRegMsg('Błąd połączenia.'); }
+  };
+
+  const fetchCmsUsers = async () => {
+    const res = await fetch(`${API}/api/admin/users`, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+    setCmsUsers(Array.isArray(data) ? data : []);
+  };
+
+  const approveUser = async (id) => {
+    await fetch(`${API}/api/admin/users/${id}/approve`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+    fetchCmsUsers();
+  };
+  const rejectUser = async (id) => {
+    await fetch(`${API}/api/admin/users/${id}/reject`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+    fetchCmsUsers();
+  };
+  const deleteUser = async (id) => {
+    if (!confirm('Usunąć konto?')) return;
+    await fetch(`${API}/api/admin/users/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    fetchCmsUsers();
+  };
+  const changeRole = async (id, role) => {
+    await fetch(`${API}/api/admin/users/${id}/role`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ role }),
+    });
+    fetchCmsUsers();
+  };
+  const saveEditUser = async () => {
+    if (!editUser) return; setUsersMsg('');
+    const res = await fetch(`${API}/api/admin/users/${editUser.id}/update`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ username: editUser.newUsername || undefined, password: editUser.newPassword || undefined }),
+    });
+    const data = await res.json();
+    setUsersMsg(data.error || 'Zapisano.');
+    if (!data.error) { setEditUser(null); fetchCmsUsers(); }
+  };
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault(); setProfMsg('');
+    try {
+      const res = await fetch(`${API}/api/profile/update`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ username: profUsername || undefined, currentPassword: profCurrent, newPassword: profNew || undefined }),
+      });
+      const data = await res.json();
+      setProfMsg(data.error || 'Zapisano zmiany.');
+      if (!data.error) {
+        setProfCurrent(''); setProfNew('');
+        if (profUsername) { setUsername(profUsername); localStorage.setItem('meczomat_user', profUsername); setProfUsername(''); }
+      }
+    } catch { setProfMsg('Błąd połączenia.'); }
   };
 
   const getYoutubeEmbedUrl = (url) => {
@@ -216,10 +305,71 @@ const CmsPanel = () => {
       {isLoggedIn ? (
         <div className="glass-card p-6 sm:p-8 rounded-2xl mb-8 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-accent/20 to-transparent"></div>
-          <div className="flex justify-between items-center mb-5 border-b border-brand-accent/6 pb-4">
-            <h2 className="text-lg font-black text-brand-cream flex items-center gap-2">🛠️ Panel Admina <span className="text-brand-cream/20 font-medium text-sm">({username})</span></h2>
-            <button onClick={handleLogout} className="text-xs bg-brand-cream/5 hover:bg-red-500/10 hover:text-red-400 text-brand-cream/30 px-4 py-2 rounded-lg font-bold transition-colors border border-brand-cream/6 hover:border-red-500/15">Wyloguj</button>
+          <div className="flex justify-between items-center mb-5 border-b border-brand-accent/6 pb-4 flex-wrap gap-3">
+            <h2 className="text-lg font-black text-brand-cream flex items-center gap-2">
+              🛠️ Panel CMS
+              <span className="text-brand-cream/20 font-medium text-sm">({username})</span>
+              {userRole === 'admin' && <span className="text-[10px] bg-yellow-500/15 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded-full font-bold">ADMIN</span>}
+            </h2>
+            <div className="flex gap-2 flex-wrap">
+              <button onClick={() => { setShowProfile(!showProfile); setShowUsers(false); }} className="text-xs bg-brand-cream/5 hover:bg-brand-accent/10 hover:text-brand-accent text-brand-cream/30 px-3 py-2 rounded-lg font-bold transition-colors border border-brand-cream/6">
+                👤 Profil
+              </button>
+              {userRole === 'admin' && (
+                <button onClick={() => { setShowUsers(!showUsers); if (!showUsers) fetchCmsUsers(); setShowProfile(false); }} className="text-xs bg-brand-cream/5 hover:bg-yellow-500/10 hover:text-yellow-400 text-brand-cream/30 px-3 py-2 rounded-lg font-bold transition-colors border border-brand-cream/6">
+                  👥 Użytkownicy
+                </button>
+              )}
+              <button onClick={handleLogout} className="text-xs bg-brand-cream/5 hover:bg-red-500/10 hover:text-red-400 text-brand-cream/30 px-3 py-2 rounded-lg font-bold transition-colors border border-brand-cream/6 hover:border-red-500/15">Wyloguj</button>
+            </div>
           </div>
+
+          {/* PROFIL */}
+          {showProfile && (
+            <div className="mb-6 p-5 bg-brand-cream/3 border border-brand-cream/8 rounded-xl">
+              <h3 className="font-bold text-brand-cream/60 text-sm mb-4">Zmień dane logowania</h3>
+              <form onSubmit={handleProfileUpdate} className="space-y-3">
+                <input type="text" placeholder={`Nowa nazwa użytkownika (obecna: ${username})`} value={profUsername} onChange={e => setProfUsername(e.target.value)} className="input-futuristic w-full text-sm" />
+                <input type="password" placeholder="Aktualne hasło *" value={profCurrent} onChange={e => setProfCurrent(e.target.value)} className="input-futuristic w-full text-sm" required />
+                <input type="password" placeholder="Nowe hasło (zostaw puste, aby nie zmieniać)" value={profNew} onChange={e => setProfNew(e.target.value)} className="input-futuristic w-full text-sm" />
+                <button type="submit" className="btn-neon px-5 py-2 rounded-lg text-sm">Zapisz zmiany</button>
+                {profMsg && <p className={`text-xs font-bold ${profMsg.includes('Błąd') || profMsg.includes('nieprawidłowe') || profMsg.includes('już') ? 'text-red-400' : 'text-brand-accent'}`}>{profMsg}</p>}
+              </form>
+            </div>
+          )}
+
+          {/* ZARZĄDZANIE UŻYTKOWNIKAMI (ADMIN) */}
+          {showUsers && userRole === 'admin' && (
+            <div className="mb-6 p-5 bg-yellow-500/3 border border-yellow-500/10 rounded-xl space-y-3">
+              <h3 className="font-bold text-yellow-400/70 text-sm mb-1">Zarządzanie kontami</h3>
+              {usersMsg && <p className="text-xs font-bold text-brand-accent">{usersMsg}</p>}
+              {cmsUsers.map(u => (
+                <div key={u._id} className="flex flex-wrap items-center gap-2 p-3 bg-brand-cream/3 rounded-lg border border-brand-cream/6">
+                  <div className="flex-1 min-w-0">
+                    <span className="font-bold text-brand-cream text-sm">{u.username}</span>
+                    <span className={`ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${u.status === 'approved' ? 'bg-brand-accent/10 text-brand-accent' : u.status === 'pending' ? 'bg-yellow-500/15 text-yellow-400' : 'bg-red-500/10 text-red-400'}`}>{u.status}</span>
+                    <span className="ml-1 text-[10px] text-brand-cream/20">{u.role}</span>
+                  </div>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {u.status === 'pending' && <button onClick={() => approveUser(u._id)} className="text-[10px] bg-brand-accent/10 text-brand-accent px-2 py-1 rounded font-bold hover:bg-brand-accent/20">Zatwierdź</button>}
+                    {u.status === 'pending' && <button onClick={() => rejectUser(u._id)} className="text-[10px] bg-red-500/10 text-red-400 px-2 py-1 rounded font-bold hover:bg-red-500/20">Odrzuć</button>}
+                    {u.status === 'approved' && u.role !== 'admin' && <button onClick={() => changeRole(u._id, 'admin')} className="text-[10px] bg-yellow-500/10 text-yellow-400 px-2 py-1 rounded font-bold">→ Admin</button>}
+                    {u.status === 'approved' && u.role === 'admin' && u.username !== username && <button onClick={() => changeRole(u._id, 'editor')} className="text-[10px] bg-brand-cream/5 text-brand-cream/30 px-2 py-1 rounded font-bold">→ Editor</button>}
+                    <button onClick={() => setEditUser(editUser?.id === u._id ? null : { id: u._id, newUsername: '', newPassword: '' })} className="text-[10px] bg-brand-cream/5 text-brand-cream/40 px-2 py-1 rounded font-bold hover:bg-brand-cream/10">✏️</button>
+                    {u.username !== username && <button onClick={() => deleteUser(u._id)} className="text-[10px] bg-red-500/8 text-red-400/60 px-2 py-1 rounded font-bold hover:bg-red-500/20 hover:text-red-400">🗑️</button>}
+                  </div>
+                  {editUser?.id === u._id && (
+                    <div className="w-full flex gap-2 mt-1 flex-wrap">
+                      <input type="text" placeholder="Nowa nazwa" value={editUser.newUsername} onChange={e => setEditUser({ ...editUser, newUsername: e.target.value })} className="input-futuristic text-xs flex-1 min-w-0" />
+                      <input type="password" placeholder="Nowe hasło" value={editUser.newPassword} onChange={e => setEditUser({ ...editUser, newPassword: e.target.value })} className="input-futuristic text-xs flex-1 min-w-0" />
+                      <button onClick={saveEditUser} className="text-xs btn-neon px-3 py-1 rounded">Zapisz</button>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {cmsUsers.length === 0 && <p className="text-brand-cream/20 text-sm text-center py-4">Brak użytkowników.</p>}
+            </div>
+          )}
 
           {activeSubTab === 'facebook' ? (
             <form onSubmit={handleSubmitFacebook} className="space-y-4">
@@ -283,16 +433,28 @@ const CmsPanel = () => {
           )}
         </div>
       ) : (
-        <div className="glass-card p-6 sm:p-8 rounded-2xl mb-8 flex flex-col md:flex-row items-center justify-between gap-5">
-          <div className="text-brand-cream/30 font-medium text-sm">Jesteś redaktorem? Zaloguj się, aby zarządzać treścią.</div>
-          <form onSubmit={handleLogin} className="flex gap-2">
-            <input type="text" placeholder="Login" value={username} onChange={(e) => setUsername(e.target.value)}
-              className="input-futuristic w-full sm:w-32 text-sm" />
-            <input type="password" placeholder="Hasło" value={password} onChange={(e) => setPassword(e.target.value)}
-              className="input-futuristic w-full sm:w-32 text-sm" />
-            <button type="submit" className="btn-neon px-5 py-2 rounded-lg text-sm whitespace-nowrap">Wejdź</button>
-          </form>
-          {loginError && <span className="text-red-400 text-xs font-bold">{loginError}</span>}
+        <div className="glass-card p-6 sm:p-8 rounded-2xl mb-8">
+          <div className="flex gap-4 mb-5 border-b border-brand-cream/6 pb-4">
+            <button onClick={() => setShowRegister(false)} className={`text-sm font-bold pb-1 transition-colors ${!showRegister ? 'text-brand-accent border-b-2 border-brand-accent' : 'text-brand-cream/30 hover:text-brand-cream/60'}`}>Logowanie</button>
+            <button onClick={() => setShowRegister(true)} className={`text-sm font-bold pb-1 transition-colors ${showRegister ? 'text-brand-accent border-b-2 border-brand-accent' : 'text-brand-cream/30 hover:text-brand-cream/60'}`}>Rejestracja</button>
+          </div>
+
+          {!showRegister ? (
+            <form onSubmit={handleLogin} className="space-y-3">
+              <input type="text" placeholder="Login" value={username} onChange={e => setUsername(e.target.value)} className="input-futuristic w-full text-sm" />
+              <input type="password" placeholder="Hasło" value={password} onChange={e => setPassword(e.target.value)} className="input-futuristic w-full text-sm" />
+              <button type="submit" className="btn-neon w-full py-2.5 rounded-xl text-sm">Zaloguj się</button>
+              {loginError && <p className="text-red-400 text-xs font-bold">{loginError}</p>}
+            </form>
+          ) : (
+            <form onSubmit={handleRegister} className="space-y-3">
+              <p className="text-brand-cream/30 text-xs">Nowe konto musi zostać zatwierdzone przez admina przed pierwszym logowaniem.</p>
+              <input type="text" placeholder="Nazwa użytkownika (min. 3 znaki)" value={regUsername} onChange={e => setRegUsername(e.target.value)} className="input-futuristic w-full text-sm" />
+              <input type="password" placeholder="Hasło (min. 6 znaków)" value={regPassword} onChange={e => setRegPassword(e.target.value)} className="input-futuristic w-full text-sm" />
+              <button type="submit" className="btn-neon w-full py-2.5 rounded-xl text-sm">Zarejestruj się</button>
+              {regMsg && <p className={`text-xs font-bold ${regMsg.includes('Błąd') || regMsg.includes('już') || regMsg.includes('musi') ? 'text-red-400' : 'text-brand-accent'}`}>{regMsg}</p>}
+            </form>
+          )}
         </div>
       )}
 

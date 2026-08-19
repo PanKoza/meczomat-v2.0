@@ -25,6 +25,11 @@ function requireAuth(req, res, next) {
   }
 }
 
+function requireAdmin(req, res, next) {
+  if (req.user?.role !== 'admin') return res.status(403).json({ error: 'Brak uprawnień admina.' });
+  next();
+}
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 app.use(cors({
@@ -76,6 +81,27 @@ const Stream = mongoose.model('Stream', StreamSchema);
 
 const ClubFacebookSchema = new mongoose.Schema({ clubName: String, facebookUrl: String, league: String, province: String, subregion: String }, { timestamps: true });
 const ClubFacebook = mongoose.model('ClubFacebook', ClubFacebookSchema);
+
+// --- MODEL UŻYTKOWNIKÓW CMS ---
+const CmsUserSchema = new mongoose.Schema({
+  username:     { type: String, required: true, unique: true },
+  passwordHash: { type: String, required: true },
+  role:         { type: String, enum: ['admin', 'editor'], default: 'editor' },
+  status:       { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+}, { timestamps: true });
+const CmsUser = mongoose.model('CmsUser', CmsUserSchema);
+
+// Seed admin z .env do bazy przy pierwszym uruchomieniu
+mongoose.connection.once('open', async () => {
+  const adminHash = process.env.JOURNALIST_ADMIN;
+  if (adminHash) {
+    const exists = await CmsUser.findOne({ username: 'admin' });
+    if (!exists) {
+      await CmsUser.create({ username: 'admin', passwordHash: adminHash, role: 'admin', status: 'approved' });
+      console.log('✅ Admin seeded to DB');
+    }
+  }
+});
 
 // --- 1. SŁOWNIK LIG (Linki do 90minut.pl) ---
 const LEAGUES = {
@@ -307,16 +333,109 @@ app.delete('/api/cache/:ligaId', requireAuth, async (req, res) => {
   res.json({ success: true, cleared: `liga:${ligaId}` });
 });
 
-// --- ENDPOINTY LOGOWANIA ---
+// --- ENDPOINTY LOGOWANIA I ZARZĄDZANIA UŻYTKOWNIKAMI ---
+
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-  const hash = JOURNALISTS[username];
-  if (hash && await bcrypt.compare(password, hash)) {
-    const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '8h' });
-    res.json({ success: true, username, token });
-  } else {
-    res.status(401).json({ success: false, error: 'Błędny login lub hasło!' });
+  if (!username || !password) return res.status(400).json({ success: false, error: 'Podaj login i hasło.' });
+  const user = await CmsUser.findOne({ username });
+  if (!user) return res.status(401).json({ success: false, error: 'Błędny login lub hasło!' });
+  if (user.status === 'pending') return res.status(403).json({ success: false, error: 'Konto oczekuje na zatwierdzenie przez admina.' });
+  if (user.status === 'rejected') return res.status(403).json({ success: false, error: 'Konto zostało odrzucone.' });
+  const ok = await bcrypt.compare(password, user.passwordHash);
+  if (!ok) return res.status(401).json({ success: false, error: 'Błędny login lub hasło!' });
+  const token = jwt.sign({ username: user.username, role: user.role, id: user._id }, JWT_SECRET, { expiresIn: '8h' });
+  res.json({ success: true, username: user.username, role: user.role, token });
+});
+
+// Rejestracja nowego konta (status: pending)
+app.post('/api/register', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Podaj login i hasło.' });
+  if (username.length < 3) return res.status(400).json({ error: 'Login musi mieć co najmniej 3 znaki.' });
+  if (password.length < 6) return res.status(400).json({ error: 'Hasło musi mieć co najmniej 6 znaków.' });
+  const exists = await CmsUser.findOne({ username });
+  if (exists) return res.status(409).json({ error: 'Taka nazwa użytkownika już istnieje.' });
+  const passwordHash = await bcrypt.hash(password, 10);
+  await CmsUser.create({ username, passwordHash, role: 'editor', status: 'pending' });
+  res.json({ success: true, message: 'Konto utworzone. Czeka na zatwierdzenie przez admina.' });
+});
+
+// Lista wszystkich użytkowników (tylko admin)
+app.get('/api/admin/users', requireAuth, requireAdmin, async (req, res) => {
+  const users = await CmsUser.find({}, '-passwordHash').sort({ createdAt: -1 });
+  res.json(users);
+});
+
+// Zatwierdź konto
+app.post('/api/admin/users/:id/approve', requireAuth, requireAdmin, async (req, res) => {
+  await CmsUser.findByIdAndUpdate(req.params.id, { status: 'approved' });
+  res.json({ success: true });
+});
+
+// Odrzuć/usuń konto
+app.post('/api/admin/users/:id/reject', requireAuth, requireAdmin, async (req, res) => {
+  await CmsUser.findByIdAndUpdate(req.params.id, { status: 'rejected' });
+  res.json({ success: true });
+});
+
+// Usuń konto (admin nie może usunąć siebie)
+app.delete('/api/admin/users/:id', requireAuth, requireAdmin, async (req, res) => {
+  if (req.params.id === req.user.id) return res.status(400).json({ error: 'Nie możesz usunąć własnego konta.' });
+  await CmsUser.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+
+// Zmiana roli użytkownika przez admina
+app.post('/api/admin/users/:id/role', requireAuth, requireAdmin, async (req, res) => {
+  const { role } = req.body;
+  if (!['admin', 'editor'].includes(role)) return res.status(400).json({ error: 'Nieprawidłowa rola.' });
+  await CmsUser.findByIdAndUpdate(req.params.id, { role });
+  res.json({ success: true });
+});
+
+// Admin zmienia dane dowolnego użytkownika (login + hasło)
+app.post('/api/admin/users/:id/update', requireAuth, requireAdmin, async (req, res) => {
+  const { username, password } = req.body;
+  const update = {};
+  if (username) {
+    if (username.length < 3) return res.status(400).json({ error: 'Login musi mieć co najmniej 3 znaki.' });
+    const clash = await CmsUser.findOne({ username, _id: { $ne: req.params.id } });
+    if (clash) return res.status(409).json({ error: 'Taka nazwa użytkownika już istnieje.' });
+    update.username = username;
   }
+  if (password) {
+    if (password.length < 6) return res.status(400).json({ error: 'Hasło musi mieć co najmniej 6 znaków.' });
+    update.passwordHash = await bcrypt.hash(password, 10);
+  }
+  await CmsUser.findByIdAndUpdate(req.params.id, update);
+  res.json({ success: true });
+});
+
+// Zalogowany użytkownik zmienia własne dane
+app.post('/api/profile/update', requireAuth, async (req, res) => {
+  const { username, currentPassword, newPassword } = req.body;
+  const user = req.user.id
+    ? await CmsUser.findById(req.user.id)
+    : await CmsUser.findOne({ username: req.user.username });
+  if (!user) return res.status(404).json({ error: 'Użytkownik nie istnieje.' });
+  if (!currentPassword) return res.status(400).json({ error: 'Podaj aktualne hasło.' });
+  const ok = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!ok) return res.status(401).json({ error: 'Aktualne hasło jest nieprawidłowe.' });
+  const update = {};
+  if (username && username !== user.username) {
+    if (username.length < 3) return res.status(400).json({ error: 'Login musi mieć co najmniej 3 znaki.' });
+    const clash = await CmsUser.findOne({ username, _id: { $ne: user._id } });
+    if (clash) return res.status(409).json({ error: 'Taka nazwa użytkownika już istnieje.' });
+    update.username = username;
+  }
+  if (newPassword) {
+    if (newPassword.length < 6) return res.status(400).json({ error: 'Nowe hasło musi mieć co najmniej 6 znaków.' });
+    update.passwordHash = await bcrypt.hash(newPassword, 10);
+  }
+  if (!Object.keys(update).length) return res.status(400).json({ error: 'Brak zmian do zapisania.' });
+  await CmsUser.findByIdAndUpdate(user._id, update);
+  res.json({ success: true });
 });
 
 // ==========================================================
