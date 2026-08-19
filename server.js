@@ -65,14 +65,17 @@ mongoose.connect(MONGO_URI)
   .catch(err => console.error('❌ Błąd połączenia z MongoDB:', err));
 
 // --- MODELE BAZY DANYCH ---
-const ArticleSchema = new mongoose.Schema({ title: String, content: String, author: String, date: String }, { timestamps: true });
+const ArticleSchema = new mongoose.Schema({ title: String, content: String, author: String, date: String, province: String, subregion: String }, { timestamps: true });
 const Article = mongoose.model('Article', ArticleSchema);
 
-const VideoSchema = new mongoose.Schema({ title: String, embedUrl: String, author: String, date: String }, { timestamps: true });
+const VideoSchema = new mongoose.Schema({ title: String, embedUrl: String, author: String, date: String, province: String, subregion: String }, { timestamps: true });
 const Video = mongoose.model('Video', VideoSchema);
 
-const StreamSchema = new mongoose.Schema({ title: String, embedUrl: String, author: String, date: String }, { timestamps: true });
+const StreamSchema = new mongoose.Schema({ title: String, embedUrl: String, author: String, date: String, province: String, subregion: String }, { timestamps: true });
 const Stream = mongoose.model('Stream', StreamSchema);
+
+const ClubFacebookSchema = new mongoose.Schema({ clubName: String, facebookUrl: String, league: String, province: String, subregion: String }, { timestamps: true });
+const ClubFacebook = mongoose.model('ClubFacebook', ClubFacebookSchema);
 
 // --- 1. SŁOWNIK LIG (Linki do 90minut.pl) ---
 const LEAGUES = {
@@ -324,22 +327,22 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/articles', async (req, res) => {
   try {
     // Pobieramy wszystkie artykuły z bazy i sortujemy od najnowszego
-    const docs = await Article.find().sort({ createdAt: -1 }); 
-    res.json(docs.map(d => ({ id: d._id, title: d.title, content: d.content, author: d.author, date: d.date })));
+    const docs = await Article.find().sort({ createdAt: -1 });
+    res.json(docs.map(d => ({ id: d._id, title: d.title, content: d.content, author: d.author, date: d.date, province: d.province || '', subregion: d.subregion || '' })));
   } catch (err) {
     res.status(500).json({ error: 'Błąd bazy danych' });
   }
 });
 
 app.post('/api/articles', requireAuth, async (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, province, subregion } = req.body;
   const author = req.user.username;
   try {
     const newArticle = await Article.create({
-      title, content, author,
+      title, content, author, province: province || '', subregion: subregion || '',
       date: new Date().toLocaleDateString('pl-PL', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
     });
-    res.json({ success: true, article: { id: newArticle._id, title, content, author, date: newArticle.date } });
+    res.json({ success: true, article: { id: newArticle._id, title, content, author, province, subregion, date: newArticle.date } });
   } catch (err) {
     res.status(500).json({ error: 'Błąd podczas zapisu w bazie' });
   }
@@ -359,21 +362,21 @@ app.post('/api/articles/delete', requireAuth, async (req, res) => {
 app.get('/api/videos', async (req, res) => {
   try {
     const docs = await Video.find().sort({ createdAt: -1 });
-    res.json(docs.map(d => ({ id: d._id, title: d.title, embedUrl: d.embedUrl, author: d.author, date: d.date })));
+    res.json(docs.map(d => ({ id: d._id, title: d.title, embedUrl: d.embedUrl, author: d.author, date: d.date, province: d.province || '', subregion: d.subregion || '' })));
   } catch (err) {
     res.status(500).json({ error: 'Błąd bazy danych' });
   }
 });
 
 app.post('/api/videos', requireAuth, async (req, res) => {
-  const { title, embedUrl } = req.body;
+  const { title, embedUrl, province, subregion } = req.body;
   const author = req.user.username;
   try {
     const newVideo = await Video.create({
-      title, embedUrl, author,
+      title, embedUrl, author, province: province || '', subregion: subregion || '',
       date: new Date().toLocaleDateString('pl-PL', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
     });
-    res.json({ success: true, video: { id: newVideo._id, title, embedUrl, author, date: newVideo.date } });
+    res.json({ success: true, video: { id: newVideo._id, title, embedUrl, author, province, subregion, date: newVideo.date } });
   } catch (err) {
     res.status(500).json({ error: 'Błąd zapisu' });
   }
@@ -393,21 +396,21 @@ app.post('/api/videos/delete', requireAuth, async (req, res) => {
 app.get('/api/streams', async (req, res) => {
   try {
     const docs = await Stream.find().sort({ createdAt: -1 });
-    res.json(docs.map(d => ({ id: d._id, title: d.title, embedUrl: d.embedUrl, author: d.author, date: d.date })));
+    res.json(docs.map(d => ({ id: d._id, title: d.title, embedUrl: d.embedUrl, author: d.author, date: d.date, province: d.province || '', subregion: d.subregion || '' })));
   } catch (err) {
     res.status(500).json({ error: 'Błąd bazy danych' });
   }
 });
 
 app.post('/api/streams', requireAuth, async (req, res) => {
-  const { title, embedUrl } = req.body;
+  const { title, embedUrl, province, subregion } = req.body;
   const author = req.user.username;
   try {
     const newStream = await Stream.create({
-      title, embedUrl, author,
+      title, embedUrl, author, province: province || '', subregion: subregion || '',
       date: new Date().toLocaleDateString('pl-PL', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
     });
-    res.json({ success: true, stream: { id: newStream._id, title, embedUrl, author, date: newStream.date } });
+    res.json({ success: true, stream: { id: newStream._id, title, embedUrl, author, province, subregion, date: newStream.date } });
   } catch (err) {
     res.status(500).json({ error: 'Błąd zapisu' });
   }
@@ -417,6 +420,37 @@ app.post('/api/streams/delete', requireAuth, async (req, res) => {
   const { id } = req.body;
   try {
     await Stream.findByIdAndDelete(id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Błąd usuwania' });
+  }
+});
+
+// --- STRONY FACEBOOK KLUBÓW ---
+app.get('/api/club-facebook', async (req, res) => {
+  try {
+    const docs = await ClubFacebook.find().sort({ clubName: 1 });
+    res.json(docs.map(d => ({ id: d._id, clubName: d.clubName, facebookUrl: d.facebookUrl, league: d.league, province: d.province || '', subregion: d.subregion || '' })));
+  } catch (err) {
+    res.status(500).json({ error: 'Błąd bazy danych' });
+  }
+});
+
+app.post('/api/club-facebook', requireAuth, async (req, res) => {
+  const { clubName, facebookUrl, league, province, subregion } = req.body;
+  if (!clubName || !facebookUrl || !league) return res.status(400).json({ error: 'Brakujące pola' });
+  try {
+    const doc = await ClubFacebook.create({ clubName, facebookUrl, league, province: province || '', subregion: subregion || '' });
+    res.json({ success: true, club: { id: doc._id, clubName, facebookUrl, league, province, subregion } });
+  } catch (err) {
+    res.status(500).json({ error: 'Błąd zapisu' });
+  }
+});
+
+app.post('/api/club-facebook/delete', requireAuth, async (req, res) => {
+  const { id } = req.body;
+  try {
+    await ClubFacebook.findByIdAndDelete(id);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Błąd usuwania' });

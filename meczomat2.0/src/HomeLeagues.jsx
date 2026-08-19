@@ -64,7 +64,6 @@ export default function HomeLeagues({ onLevelSelect }) {
 
         {/* Header */}
         <div className="leagues-header">
-          <div className="leagues-tag">🏟️ Rozgrywki ligowe</div>
           <h2 className="leagues-h2">
             Znajdź swoją ligę
           </h2>
