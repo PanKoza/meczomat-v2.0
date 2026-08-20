@@ -38,7 +38,7 @@ const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
           <span className="text-2xl">🏆</span> Tabela ligowa – aktualne wyniki
         </h2>
         <span className="text-[10px] bg-brand-accent/8 text-brand-accent/60 px-3 py-1.5 rounded-md font-bold uppercase tracking-widest border border-brand-accent/10">
-          Sezon 25/26
+          Sezon 26/27
         </span>
       </div>
 
