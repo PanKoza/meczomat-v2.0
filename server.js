@@ -93,13 +93,17 @@ const CmsUser = mongoose.model('CmsUser', CmsUserSchema);
 
 // Seed admin z .env do bazy przy pierwszym uruchomieniu
 mongoose.connection.once('open', async () => {
-  const adminHash = process.env.JOURNALIST_ADMIN;
-  if (adminHash) {
-    const exists = await CmsUser.findOne({ username: 'admin' });
-    if (!exists) {
-      await CmsUser.create({ username: 'admin', passwordHash: adminHash, role: 'admin', status: 'approved' });
-      console.log('✅ Admin seeded to DB');
+  try {
+    const adminHash = process.env.JOURNALIST_ADMIN;
+    if (adminHash) {
+      const exists = await CmsUser.findOne({ username: 'admin' });
+      if (!exists) {
+        await CmsUser.create({ username: 'admin', passwordHash: adminHash, role: 'admin', status: 'approved' });
+        console.log('✅ Admin seeded to DB');
+      }
     }
+  } catch (err) {
+    console.error('Seed error:', err.message);
   }
 });
 
@@ -584,6 +588,6 @@ app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(DIST, 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Serwer działa na http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Serwer działa na http://0.0.0.0:${PORT}`);
 });
