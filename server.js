@@ -584,6 +584,9 @@ app.post('/api/club-facebook/delete', requireAuth, async (req, res) => {
 const path = require('path');
 const DIST = path.join(__dirname, 'meczomat2.0', 'dist');
 app.use(express.static(DIST));
+
+app.get('/api/health', (_req, res) => res.json({ ok: true }));
+
 app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(DIST, 'index.html'));
 });
