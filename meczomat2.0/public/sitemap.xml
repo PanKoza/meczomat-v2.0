@@ -135,23 +135,3 @@
   <url><loc>https://meczomat.pl/rozgrywki/Klasa-B-Jelenia-Gora-III</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.65</priority></url>
 
 </urlset>
-
-  <url>
-    <loc>https://meczomat.pl/</loc>
-    <lastmod>2026-04-20</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://meczomat.pl/#rozgrywki</loc>
-    <lastmod>2026-04-20</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://meczomat.pl/#centrum-kibica</loc>
-    <lastmod>2026-04-20</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-</urlset>
