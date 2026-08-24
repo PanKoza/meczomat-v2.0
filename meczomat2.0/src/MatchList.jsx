@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import API from './api';
 
-const PL_MONTHS = { sty:0,lut:1,mar:2,kwi:3,maj:4,cze:5,lip:6,sie:7,wrz:8,paz:9,lis:10,gru:11 };
+const PL_MONTHS = { sty:0,lut:1,mar:2,kwi:3,maj:4,cze:5,lip:6,sie:7,wrz:8,paz:9,'paź':9,lis:10,gru:11 };
+const PL_MONTH_FULL = { stycznia:0,lutego:1,marca:2,kwietnia:3,maja:4,czerwca:5,lipca:6,sierpnia:7,września:8,października:9,listopada:10,grudnia:11 };
 
-// Parses "DD.MM.YYYY" or "DD Mmm YYYY" into a Date
+// Parses "DD.MM.YYYY", "DD Mmm YYYY", or "DD MonthName" (no year) into a Date
 const parseDate = (str) => {
   if (!str) return new Date(0);
   const dotMatch = str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
   if (dotMatch) return new Date(+dotMatch[3], +dotMatch[2] - 1, +dotMatch[1]);
-  const plMatch = str.match(/^(\d{1,2})\s+([a-zA-Ząę]+)\s+(\d{4})/i);
-  if (plMatch) {
-    const m = PL_MONTHS[plMatch[2].toLowerCase().slice(0, 3)];
-    if (m !== undefined) return new Date(+plMatch[3], m, +plMatch[1]);
+  const plFull = str.match(/^(\d{1,2})\s+([a-zA-Ząęółśźćń]+)\s+(\d{4})/i);
+  if (plFull) {
+    const m = PL_MONTHS[plFull[2].toLowerCase().slice(0, 3)] ?? PL_MONTH_FULL[plFull[2].toLowerCase()];
+    if (m !== undefined) return new Date(+plFull[3], m, +plFull[1]);
+  }
+  // "DD MonthName" without year — use current year as base
+  const plNoYear = str.match(/^(\d{1,2})\s+([a-zA-Ząęółśźćń]+)/i);
+  if (plNoYear) {
+    const key = plNoYear[2].toLowerCase();
+    const m = PL_MONTHS[key.slice(0, 3)] ?? PL_MONTH_FULL[key];
+    if (m !== undefined) return new Date(new Date().getFullYear(), m, +plNoYear[1]);
   }
   return new Date(str);
 };
@@ -118,7 +126,11 @@ const MatchList = ({ leagueId }) => {
   // Played: most recent first (closest past date at top)
   const played = matches
     .filter(m => m.status === 'Zakończony')
-    .sort((a, b) => parseDate(b.dataWizualna) - parseDate(a.dataWizualna));
+    .sort((a, b) => {
+      const diff = parseDate(b.dataWizualna) - parseDate(a.dataWizualna);
+      if (diff !== 0) return diff;
+      return (+b.kolejka || 0) - (+a.kolejka || 0);
+    });
 
   // Upcoming: soonest first (closest future date at top)
   const upcoming = matches
