@@ -233,24 +233,33 @@ const TeamSearch = ({
                 <div className="neon-line my-6"></div>
                 <div>
                   <h3 className="text-sm font-bold text-brand-cream/25 uppercase tracking-widest mb-4">📘 Strona na Facebooku</h3>
-                  <div style={{ background: 'var(--c-surface,#12201a)', border: '1px solid rgba(59,130,246,0.22)', borderRadius: 14, overflow: 'hidden' }}>
-                    <div style={{ padding: '0.85rem 1.1rem', background: 'linear-gradient(135deg,rgba(59,130,246,0.1),rgba(37,99,235,0.06))', borderBottom: '1px solid rgba(59,130,246,0.14)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg,#1877f2,#0c52a3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', flexShrink: 0 }}>📘</div>
+                  <div style={{ background: 'var(--c-surface,#12201a)', border: '1px solid rgba(59,130,246,0.25)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.25)', transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 16px 48px rgba(24,119,242,0.2)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.25)'; }}
+                  >
+                    <div style={{ padding: '0.85rem 1.1rem', background: 'linear-gradient(135deg,rgba(24,119,242,0.18),rgba(37,99,235,0.08))', borderBottom: '1px solid rgba(59,130,246,0.2)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,#1877f2,#0c52a3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 3px 12px rgba(24,119,242,0.45)', fontWeight: 900, fontSize: '1.05rem', color: '#fff', fontFamily: 'Georgia,serif' }}>f</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 800, color: 'var(--c-text,#edf2ed)', fontSize: '0.92rem' }}>{fbClub.clubName}</div>
-                        <div style={{ fontSize: '0.65rem', color: '#60a5fa', marginTop: 1 }}>{fbClub.league}{fbClub.province ? ` · ${fbClub.province}` : ''}</div>
+                        <div style={{ fontWeight: 800, color: 'var(--c-text,#edf2ed)', fontSize: '0.92rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{fbClub.clubName}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#60a5fa', marginTop: 1, display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#3b82f6', display: 'inline-block', flexShrink: 0 }} />
+                          {fbClub.league}{fbClub.province ? ` · ${fbClub.province}` : ''}
+                        </div>
                       </div>
-                      <a href={fbClub.facebookUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.68rem', fontWeight: 700, background: 'rgba(24,119,242,0.15)', color: '#93c5fd', padding: '4px 10px', borderRadius: 16, border: '1px solid rgba(59,130,246,0.3)', textDecoration: 'none' }}>Otwórz →</a>
+                      <a href={fbClub.facebookUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', fontWeight: 700, background: 'linear-gradient(135deg,#1877f2,#0c52a3)', color: '#fff', padding: '5px 13px', borderRadius: 20, textDecoration: 'none', flexShrink: 0, boxShadow: '0 2px 10px rgba(24,119,242,0.4)' }}>Otwórz →</a>
                     </div>
-                    <iframe
-                      src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(fbClub.facebookUrl)}&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId`}
-                      width="100%" height="600"
-                      style={{ border: 'none', display: 'block' }}
-                      scrolling="no" frameBorder="0" allowFullScreen
-                      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                      title={`Facebook - ${fbClub.clubName}`}
-                      loading="lazy"
-                    />
+                    <div style={{ position: 'relative', height: 480, overflow: 'hidden' }}>
+                      <iframe
+                        src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(fbClub.facebookUrl)}&tabs=timeline&width=500&height=540&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false&appId`}
+                        width="100%" height="540"
+                        style={{ border: 'none', display: 'block' }}
+                        scrolling="no" frameBorder="0" allowFullScreen
+                        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                        title={`Facebook - ${fbClub.clubName}`}
+                        loading="lazy"
+                      />
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, background: 'linear-gradient(to top, var(--c-surface, #12201a) 10%, transparent)', pointerEvents: 'none' }} />
+                    </div>
                   </div>
                 </div>
               </>

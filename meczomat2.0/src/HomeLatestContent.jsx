@@ -170,22 +170,30 @@ export default function HomeLatestContent({ latestContent }) {
               <h2 className="leagues-h2">Kluby na Facebooku</h2>
               <p className="leagues-sub">Tutaj znajdziesz wszystkie Fan Page swoich ulubionych drużyn.</p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px, 100%), 1fr))', gap: 20 }}>
               {fbClubs.map(club => {
-                const embedUrl = `https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(club.facebookUrl)}&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId`;
+                const embedUrl = `https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(club.facebookUrl)}&tabs=timeline&width=500&height=600&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false&appId`;
                 return (
-                  <div key={club._id || club.id} style={{ background: 'var(--c-surface)', border: '1px solid rgba(59,130,246,0.22)', borderRadius: 18, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}>
-                    <div style={{ padding: '0.9rem 1.2rem', background: 'linear-gradient(135deg,rgba(59,130,246,0.1),rgba(37,99,235,0.06))', borderBottom: '1px solid rgba(59,130,246,0.14)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg,#1877f2,#0c52a3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>📘</div>
+                  <div key={club._id || club.id}
+                    style={{ background: 'var(--c-surface)', border: '1px solid rgba(59,130,246,0.25)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.25)', transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 16px 48px rgba(24,119,242,0.2)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.25)'; }}
+                  >
+                    <div style={{ padding: '0.9rem 1.2rem', background: 'linear-gradient(135deg,rgba(24,119,242,0.18),rgba(37,99,235,0.08))', borderBottom: '1px solid rgba(59,130,246,0.2)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(135deg,#1877f2,#0c52a3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 3px 12px rgba(24,119,242,0.45)', fontWeight: 900, fontSize: '1.1rem', color: '#fff', fontFamily: 'Georgia,serif' }}>f</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontWeight: 800, color: 'var(--c-text)', fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{club.clubName}</div>
-                        <div style={{ fontSize: '0.68rem', color: '#60a5fa', marginTop: 2 }}>
-                          {club.league}{club.province ? ` · ${club.province}` : ''}{club.subregion ? ` / ${club.subregion}` : ''}
+                        <div style={{ fontSize: '0.68rem', color: '#60a5fa', marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#3b82f6', display: 'inline-block', flexShrink: 0 }} />
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{club.league}{club.province ? ` · ${club.province}` : ''}{club.subregion ? ` / ${club.subregion}` : ''}</span>
                         </div>
                       </div>
-                      <a href={club.facebookUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', fontWeight: 700, background: 'rgba(24,119,242,0.15)', color: '#93c5fd', padding: '5px 12px', borderRadius: 20, border: '1px solid rgba(59,130,246,0.3)', textDecoration: 'none', flexShrink: 0 }}>Otwórz →</a>
+                      <a href={club.facebookUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.72rem', fontWeight: 700, background: 'linear-gradient(135deg,#1877f2,#0c52a3)', color: '#fff', padding: '6px 14px', borderRadius: 20, textDecoration: 'none', flexShrink: 0, boxShadow: '0 2px 10px rgba(24,119,242,0.4)', whiteSpace: 'nowrap' }}>Otwórz →</a>
                     </div>
-                    <iframe src={embedUrl} width="100%" height="600" style={{ border: 'none', display: 'block' }} scrolling="no" frameBorder="0" allowFullScreen allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" title={`Facebook - ${club.clubName}`} loading="lazy" />
+                    <div style={{ position: 'relative', height: 480, overflow: 'hidden' }}>
+                      <iframe src={embedUrl} width="100%" height="540" style={{ border: 'none', display: 'block' }} scrolling="no" frameBorder="0" allowFullScreen allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" title={`Facebook - ${club.clubName}`} loading="lazy" />
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, background: 'linear-gradient(to top, var(--c-surface, #12201a) 10%, transparent)', pointerEvents: 'none' }} />
+                    </div>
                   </div>
                 );
               })}
