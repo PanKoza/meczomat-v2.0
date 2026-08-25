@@ -316,18 +316,18 @@ function App() {
           NAVBAR
           ================================================================ */}
       <nav className="glass-nav sticky top-0 z-50 animate-fade-in-down">
-        <div className="max-w-6xl mx-auto px-5 h-[72px] flex justify-between items-center gap-4">
+        <div className="max-w-6xl mx-auto px-4 h-[64px] sm:h-[72px] flex justify-between items-center gap-2">
 
           {/* Logo */}
-          <button onClick={() => navigate('/')} className="flex items-center gap-3 min-h-0 min-w-0 border-0 bg-transparent p-0 cursor-pointer">
-            <img src="/Group_2.jpg" alt="Meczomat logo" className="h-10 w-10 rounded-lg object-contain logo-spin flex-shrink-0" />
-            <span className="text-xl font-black tracking-tight" style={{ color: 'var(--c-text)' }}>
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 min-h-0 min-w-0 border-0 bg-transparent p-0 cursor-pointer flex-shrink-0">
+            <img src="/Group_2.jpg" alt="Meczomat logo" className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg object-contain logo-spin flex-shrink-0" />
+            <span className="text-lg sm:text-xl font-black tracking-tight" style={{ color: 'var(--c-text)' }}>
               meczomat<span style={{ color: 'var(--c-accent)' }}>.pl</span>
             </span>
           </button>
 
           {/* Nav links */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
             {[
               { key: 'leagues',  label: 'Rozgrywki',      icon: '⚽', action: () => { setWizardStep(1); navigate('/rozgrywki'); } },
               { key: 'news',     label: 'Centrum Kibica',  icon: '📺', action: () => navigate('/centrum-kibica') },
@@ -336,7 +336,7 @@ function App() {
               <button key={item.key} onClick={item.action}
                 className={`nav-link${currentView === item.key ? ' active' : ''}`}>
                 <span className="text-base">{item.icon}</span>
-                <span>{item.label}</span>
+                <span className="hidden sm:inline">{item.label}</span>
               </button>
             ))}
           </div>
