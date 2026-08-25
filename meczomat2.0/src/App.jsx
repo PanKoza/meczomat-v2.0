@@ -316,12 +316,12 @@ function App() {
           NAVBAR
           ================================================================ */}
       <nav className="glass-nav sticky top-0 z-50 animate-fade-in-down">
-        <div className="max-w-6xl mx-auto px-5 h-16 flex justify-between items-center gap-4">
+        <div className="max-w-6xl mx-auto px-5 h-[72px] flex justify-between items-center gap-4">
 
           {/* Logo */}
           <button onClick={() => navigate('/')} className="flex items-center gap-3 min-h-0 min-w-0 border-0 bg-transparent p-0 cursor-pointer">
-            <img src="/Group_2.jpg" alt="Meczomat logo" className="h-9 w-9 rounded-lg object-contain logo-spin flex-shrink-0" />
-            <span className="text-lg font-black tracking-tight" style={{ color: 'var(--c-text)' }}>
+            <img src="/Group_2.jpg" alt="Meczomat logo" className="h-10 w-10 rounded-lg object-contain logo-spin flex-shrink-0" />
+            <span className="text-xl font-black tracking-tight" style={{ color: 'var(--c-text)' }}>
               meczomat<span style={{ color: 'var(--c-accent)' }}>.pl</span>
             </span>
           </button>
@@ -336,7 +336,7 @@ function App() {
               <button key={item.key} onClick={item.action}
                 className={`nav-link${currentView === item.key ? ' active' : ''}`}>
                 <span className="text-base">{item.icon}</span>
-                <span className="hidden sm:inline">{item.label}</span>
+                <span>{item.label}</span>
               </button>
             ))}
           </div>
@@ -366,17 +366,17 @@ function App() {
               <section className="max-w-[960px] mx-auto px-6 py-10">
                 <div className="fav-widget flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5">
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--c-accent)' }}>★ Twój ulubiony klub</p>
-                    <h2 className="text-2xl font-black mb-3 truncate" style={{ color: 'var(--c-text)' }}>{favoriteTeam.name}</h2>
+                    <p className="text-sm font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--c-accent)' }}>★ Twój ulubiony klub</p>
+                    <h2 className="text-3xl font-black mb-3 truncate" style={{ color: 'var(--c-text)' }}>{favoriteTeam.name}</h2>
                     {nextMatch ? (
-                      <div className="flex flex-wrap items-center gap-3 text-sm">
+                      <div className="flex flex-wrap items-center gap-3 text-base">
                         <span style={{ color: 'var(--c-text-2)' }}>Następny mecz:</span>
                         <span className="font-bold" style={{ color: 'var(--c-text)' }}>{nextMatch.dataWizualna} · {nextMatch.godzina}</span>
                         <span style={{ color: 'var(--c-text-2)' }}>vs {nextMatch.gospodarz.nazwa === favoriteTeam.name ? nextMatch.gosc.nazwa : nextMatch.gospodarz.nazwa}</span>
-                        <span className="text-xs px-2 py-0.5 rounded" style={{ color: 'var(--c-text-3)', background: 'var(--c-surface3)' }}>Kolejka {nextMatch.kolejka}</span>
+                        <span className="text-sm px-2 py-1 rounded" style={{ color: 'var(--c-text-3)', background: 'var(--c-surface3)' }}>Kolejka {nextMatch.kolejka}</span>
                       </div>
                     ) : (
-                      <p className="text-sm" style={{ color: 'var(--c-text-2)' }}>Brak nadchodzących meczów w tej lidze.</p>
+                      <p className="text-base" style={{ color: 'var(--c-text-2)' }}>Brak nadchodzących meczów w tej lidze.</p>
                     )}
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
@@ -422,7 +422,7 @@ function App() {
                       return (
                         <React.Fragment key={step}>
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all"
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 transition-all"
                                  style={{
                                    background: done ? 'var(--c-accent)' : active ? 'var(--c-accent-bg)' : 'var(--c-surface2)',
                                    color: done ? '#0c1410' : active ? 'var(--c-accent)' : 'var(--c-text-3)',
@@ -430,7 +430,7 @@ function App() {
                                  }}>
                               {done ? '✓' : step}
                             </div>
-                            <span className="text-sm font-medium hidden sm:inline"
+                            <span className="text-base font-medium hidden sm:inline"
                                   style={{ color: active ? 'var(--c-text)' : 'var(--c-text-3)' }}>
                               {label}
                             </span>
@@ -448,8 +448,8 @@ function App() {
                 {wizardStep === 1 && (
                   <div className="animate-fade-in-scale">
                     <div className="mb-7">
-                      <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--c-text)' }}>Wybierz klasę rozgrywkową</h2>
-                      <p className="text-sm" style={{ color: 'var(--c-text-2)' }}>Wskaż szczebel ligowy, który Cię interesuje.</p>
+                    <h2 className="text-3xl font-bold mb-1" style={{ color: 'var(--c-text)' }}>Wybierz klasę rozgrywkową</h2>
+                    <p className="text-base" style={{ color: 'var(--c-text-2)' }}>Wskaż szczebel ligowy, który Cię interesuje.</p>
                     </div>
 
                     {/* National */}
@@ -457,9 +457,9 @@ function App() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                       {WIZARD_LEVELS.filter(l => l.type === 'national').map(level => (
                         <button key={level.id} onClick={() => handleLevelSelect(level)} className="wizard-btn">
-                          <span className="text-3xl">{level.icon}</span>
-                          <span className="font-bold text-sm" style={{ color: 'var(--c-text)' }}>{level.name}</span>
-                          <span className="text-xs" style={{ color: 'var(--c-text-3)' }}>{level.desc}</span>
+                          <span className="text-4xl">{level.icon}</span>
+                          <span className="font-bold text-base" style={{ color: 'var(--c-text)' }}>{level.name}</span>
+                          <span className="text-sm" style={{ color: 'var(--c-text-3)' }}>{level.desc}</span>
                         </button>
                       ))}
                     </div>
@@ -469,9 +469,9 @@ function App() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {WIZARD_LEVELS.filter(l => l.type === 'regional').map(level => (
                         <button key={level.id} onClick={() => handleLevelSelect(level)} className="wizard-btn">
-                          <span className="text-3xl">{level.icon}</span>
-                          <span className="font-bold text-sm" style={{ color: 'var(--c-text)' }}>{level.name}</span>
-                          <span className="text-xs" style={{ color: 'var(--c-text-3)' }}>{level.desc}</span>
+                          <span className="text-4xl">{level.icon}</span>
+                          <span className="font-bold text-base" style={{ color: 'var(--c-text)' }}>{level.name}</span>
+                          <span className="text-sm" style={{ color: 'var(--c-text-3)' }}>{level.desc}</span>
                         </button>
                       ))}
                     </div>
@@ -482,18 +482,18 @@ function App() {
                 {wizardStep === 2 && (
                   <div className="animate-fade-in-scale">
                     <div className="flex items-center gap-3 mb-7">
-                      <button onClick={() => setWizardStep(1)} className="btn-secondary text-sm px-4 py-2 rounded-lg">← Wróć</button>
+                      <button onClick={() => setWizardStep(1)} className="btn-secondary text-base px-5 py-3 rounded-lg">← Wróć</button>
                       <div>
-                        <h2 className="text-2xl font-bold" style={{ color: 'var(--c-text)' }}>Wybierz województwo</h2>
-                        <p className="text-sm" style={{ color: 'var(--c-text-2)' }}>dla klasy: <span style={{ color: 'var(--c-accent)' }}>{wizLevel}</span></p>
+                        <h2 className="text-3xl font-bold" style={{ color: 'var(--c-text)' }}>Wybierz województwo</h2>
+                        <p className="text-base" style={{ color: 'var(--c-text-2)' }}>dla klasy: <span style={{ color: 'var(--c-accent)' }}>{wizLevel}</span></p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {availableProvinces.map(prov => (
                         <button key={prov} onClick={() => handleProvinceSelect(prov)} className="wizard-btn-row">
-                          <div className="flex items-center gap-2">
-                            <span className="text-base">📍</span>
-                            <span className="font-semibold text-sm" style={{ color: 'var(--c-text)' }}>{prov}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xl">📍</span>
+                            <span className="font-semibold text-base" style={{ color: 'var(--c-text)' }}>{prov}</span>
                           </div>
                           <span style={{ color: 'var(--c-accent)' }}>›</span>
                         </button>
@@ -506,17 +506,17 @@ function App() {
                 {wizardStep === 3 && (
                   <div className="animate-fade-in-scale">
                     <div className="flex items-center gap-3 mb-7">
-                      <button onClick={() => setWizardStep(wizProv === "Cała Polska" ? 1 : 2)} className="btn-secondary text-sm px-4 py-2 rounded-lg">← Wróć</button>
+                      <button onClick={() => setWizardStep(wizProv === "Cała Polska" ? 1 : 2)} className="btn-secondary text-base px-5 py-3 rounded-lg">← Wróć</button>
                       <div>
-                        <h2 className="text-2xl font-bold" style={{ color: 'var(--c-text)' }}>Wybierz grupę</h2>
-                        <p className="text-sm" style={{ color: 'var(--c-text-2)' }}>{wizProv} · {wizLevel}</p>
+                        <h2 className="text-3xl font-bold" style={{ color: 'var(--c-text)' }}>Wybierz grupę</h2>
+                        <p className="text-base" style={{ color: 'var(--c-text-2)' }}>{wizProv} · {wizLevel}</p>
                       </div>
                     </div>
                     {availableGroups.length > 0 ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {availableGroups.map(group => (
                           <button key={group.id} onClick={() => handleGroupSelect(group.id)} className="wizard-btn-row">
-                            <span className="font-semibold text-sm" style={{ color: 'var(--c-text)' }}>{group.name}</span>
+                            <span className="font-semibold text-base" style={{ color: 'var(--c-text)' }}>{group.name}</span>
                             <span style={{ color: 'var(--c-accent)' }}>›</span>
                           </button>
                         ))}

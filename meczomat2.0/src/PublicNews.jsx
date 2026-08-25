@@ -46,13 +46,13 @@ const Pill = ({ active, onClick, children, color = 'green', small = false }) => 
   return (
     <button onClick={onClick} style={{
       display: 'inline-flex', alignItems: 'center', gap: 5,
-      padding: small ? '0.35rem 0.85rem' : '0.5rem 1.1rem',
+      padding: small ? '0.55rem 1.1rem' : '0.65rem 1.25rem',
       borderRadius: 20, fontWeight: 700,
-      fontSize: small ? '0.75rem' : '0.83rem',
+      fontSize: small ? '0.9375rem' : '0.9375rem',
       cursor: 'pointer', transition: 'all 0.17s',
       background: active ? C.bg : 'var(--c-surface)',
       border: `1px solid ${active ? C.bdr : 'var(--c-border)'}`,
-      color: active ? C.txt : 'var(--c-text-3)',
+      color: active ? C.txt : 'var(--c-text)',
       boxShadow: active ? `0 0 10px ${C.bg}` : 'none',
     }}>{children}</button>
   );
@@ -61,9 +61,9 @@ const Pill = ({ active, onClick, children, color = 'green', small = false }) => 
 const SectionHeader = ({ icon, title, count, color = '#22c55e' }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '2rem 0 1.1rem' }}>
     <span style={{ fontSize: '1.25rem' }}>{icon}</span>
-    <h2 style={{ fontWeight: 900, fontSize: '1.05rem', color: 'var(--c-text)', margin: 0 }}>{title}</h2>
+    <h2 style={{ fontWeight: 900, fontSize: '1.125rem', color: 'var(--c-text)', margin: 0 }}>{title}</h2>
     {count != null && (
-      <span style={{ background: `${color}1a`, color, fontSize: '0.68rem', fontWeight: 800, padding: '2px 8px', borderRadius: 20, border: `1px solid ${color}40` }}>{count}</span>
+      <span style={{ background: `${color}1a`, color, fontSize: '0.75rem', fontWeight: 800, padding: '3px 10px', borderRadius: 20, border: `1px solid ${color}40` }}>{count}</span>
     )}
     <div style={{ flex: 1, height: 1, background: 'var(--c-border)' }} />
   </div>
@@ -72,8 +72,8 @@ const SectionHeader = ({ icon, title, count, color = '#22c55e' }) => (
 const Empty = ({ icon, text, sub }) => (
   <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, padding: '3rem 2rem', textAlign: 'center' }}>
     <div style={{ fontSize: '2rem', opacity: 0.18, marginBottom: 10 }}>{icon}</div>
-    <p style={{ color: 'var(--c-text-3)', fontWeight: 600, fontSize: '0.88rem' }}>{text}</p>
-    {sub && <p style={{ color: 'var(--c-text-3)', fontSize: '0.78rem', marginTop: 4, opacity: 0.7 }}>{sub}</p>}
+    <p style={{ color: 'var(--c-text-3)', fontWeight: 600, fontSize: '0.9375rem' }}>{text}</p>
+    {sub && <p style={{ color: 'var(--c-text-3)', fontSize: '0.875rem', marginTop: 4, opacity: 0.8 }}>{sub}</p>}
   </div>
 );
 
@@ -89,7 +89,7 @@ const ShowMore = ({ shown, total, onMore }) => {
       display: 'block', width: '100%', marginTop: 12,
       padding: '0.65rem', borderRadius: 10, cursor: 'pointer',
       background: 'var(--c-surface)', border: '1px solid var(--c-border)',
-      color: 'var(--c-text-2)', fontWeight: 700, fontSize: '0.82rem',
+      color: 'var(--c-text-2)', fontWeight: 700, fontSize: '0.9rem',
       transition: 'all 0.18s',
     }}>
       Pokaż więcej ({Math.min(10, total - shown)} z {total - shown} pozostałych) ›
@@ -177,7 +177,7 @@ const PublicNews = () => {
       {/* REGION FILTER */}
       <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, padding: '0.85rem 1.2rem', marginBottom: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 7 }}>
-          <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--c-text-3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginRight: 2 }}>Region</span>
+          <span style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: 4 }}>Region</span>
           {REGIONS.map(r => (
             <Pill key={r.id} active={activeProvince === r.id} onClick={() => setProvince(r.id)} small color="green">
               {r.icon} {r.name}
@@ -186,7 +186,7 @@ const PublicNews = () => {
         </div>
         {hasSubregions && (
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 7, marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid var(--c-border)' }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--c-text-3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginRight: 2 }}>Podregion</span>
+            <span style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--c-text-2)', textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: 4 }}>Podregion</span>
             <Pill active={activeSubregion === ''} onClick={() => setActiveSubregion('')} small color="green">Wszystkie</Pill>
             {selectedRegion.subregions.map(s => (
               <Pill key={s} active={activeSubregion === s} onClick={() => setActiveSubregion(s)} small color="green">{s}</Pill>
@@ -202,7 +202,7 @@ const PublicNews = () => {
 
           <div style={{ background: 'var(--c-surface)', border: '1px solid rgba(59,130,246,0.18)', borderRadius: 14, padding: '0.85rem 1.2rem', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 7 }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.07em', marginRight: 2 }}>Region</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: 4 }}>Region</span>
               {REGIONS.map(r => (
                 <Pill key={r.id} active={fbProvince === r.id} onClick={() => setFbProv(r.id)} small color="blue">
                   {r.icon} {r.name}
@@ -211,7 +211,7 @@ const PublicNews = () => {
             </div>
             {fbHasSubregions && (
               <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 7, marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid rgba(59,130,246,0.1)' }}>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.07em', marginRight: 2 }}>Podregion</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: 4 }}>Podregion</span>
                 <Pill active={fbSubregion === ''} onClick={() => setFbSubregion('')} small color="blue">Wszystkie</Pill>
                 {fbSelectedRegion.subregions.map(s => (
                   <Pill key={s} active={fbSubregion === s} onClick={() => setFbSubregion(s)} small color="blue">{s}</Pill>
@@ -219,7 +219,7 @@ const PublicNews = () => {
               </div>
             )}
             <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 7, marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid rgba(59,130,246,0.1)' }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.07em', marginRight: 2 }}>Poziom</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: 4 }}>Poziom</span>
               {LEAGUE_LEVELS.map(l => (
                 <Pill key={l.id} active={fbLevel === l.id} onClick={() => setFbLevel(l.id)} small color="blue">{l.name}</Pill>
               ))}

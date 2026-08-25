@@ -44,13 +44,13 @@ export default function CookieConsent() {
           <div className="flex gap-2 shrink-0">
             <button
               onClick={reject}
-              className="text-xs px-4 py-2 rounded-lg font-bold border border-brand-accent/20 text-brand-cream/60 hover:text-brand-cream hover:bg-white/5 transition-all duration-200"
+              className="text-sm px-5 py-3 rounded-lg font-bold border border-brand-accent/20 text-brand-cream/60 hover:text-brand-cream hover:bg-white/5 transition-all duration-200"
             >
               Odrzuć
             </button>
             <button
               onClick={accept}
-              className="text-xs px-4 py-2 rounded-lg font-bold bg-brand-accent text-brand-dark hover:bg-brand-accent/80 transition-all duration-200 shadow-[0_0_16px_rgba(0,255,136,0.2)]"
+              className="text-sm px-5 py-3 rounded-lg font-bold bg-brand-accent text-brand-dark hover:bg-brand-accent/80 transition-all duration-200 shadow-[0_0_16px_rgba(0,255,136,0.2)]"
             >
               Akceptuj
             </button>
