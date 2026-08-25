@@ -158,9 +158,48 @@ const PublicNews = () => {
         <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 900, color: 'var(--c-text)', lineHeight: 1.2, marginBottom: 8 }}>
           Centrum Kibica
         </h1>
-        <p style={{ color: 'var(--c-text-2)', fontSize: '0.95rem', maxWidth: 560, margin: '0 auto' }}>
+        <p style={{ color: 'var(--c-text-2)', fontSize: '0.95rem', maxWidth: 560, margin: '0 auto 1.5rem' }}>
           Wiadomosci, skroty meczow, transmisje i profile klubowe z calej Polski.
         </p>
+
+        {/* Social media CTA banner */}
+        <div style={{ position: 'relative', maxWidth: 640, margin: '0 auto 1.25rem', borderRadius: 18, overflow: 'hidden', padding: '1.25rem 1.5rem', background: 'linear-gradient(135deg, rgba(24,119,242,0.18) 0%, rgba(131,58,180,0.18) 50%, rgba(225,48,108,0.18) 100%)', border: '1px solid rgba(225,48,108,0.3)' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(24,119,242,0.08), rgba(225,48,108,0.08), rgba(24,119,242,0.08))', backgroundSize: '200% 100%', animation: 'socialShimmer 3s linear infinite' }} aria-hidden="true" />
+          <p style={{ position: 'relative', fontWeight: 800, fontSize: 'clamp(1rem, 2.5vw, 1.2rem)', color: 'var(--c-text)', margin: '0 0 0.25rem', animation: 'socialPulseText 2.5s ease-in-out infinite' }}>
+            📣 Śledź nas w social mediach!
+          </p>
+          <p style={{ position: 'relative', color: 'var(--c-text-2)', fontSize: '0.875rem', margin: 0 }}>
+            Bądź na bieżąco — wyniki, newsy i ciekawostki prosto na Twój ekran
+          </p>
+        </div>
+
+        <style>{`
+          @keyframes socialShimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+          @keyframes socialPulseText {
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(1.04); }
+          }
+        `}</style>
+
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <a href="https://www.facebook.com/profile.php?id=61593388382805" target="_blank" rel="noopener noreferrer"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 9, padding: '0.65rem 1.4rem', borderRadius: 20, fontWeight: 700, fontSize: '0.9375rem', textDecoration: 'none', background: 'rgba(24,119,242,0.13)', border: '1px solid rgba(24,119,242,0.4)', color: '#93c5fd', transition: 'all 0.18s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(24,119,242,0.22)'; e.currentTarget.style.borderColor = 'rgba(24,119,242,0.65)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(24,119,242,0.13)'; e.currentTarget.style.borderColor = 'rgba(24,119,242,0.4)'; }}>
+            <span style={{ fontWeight: 900, fontFamily: 'Georgia,serif', fontSize: '1rem' }}>f</span>
+            Facebook
+          </a>
+          <a href="https://www.instagram.com/meczomat.pl/" target="_blank" rel="noopener noreferrer"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 9, padding: '0.65rem 1.4rem', borderRadius: 20, fontWeight: 700, fontSize: '0.9375rem', textDecoration: 'none', background: 'rgba(225,48,108,0.12)', border: '1px solid rgba(225,48,108,0.38)', color: '#f9a8d4', transition: 'all 0.18s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(225,48,108,0.22)'; e.currentTarget.style.borderColor = 'rgba(225,48,108,0.65)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(225,48,108,0.12)'; e.currentTarget.style.borderColor = 'rgba(225,48,108,0.38)'; }}>
+            <span style={{ fontSize: '1rem' }}>📷</span>
+            Instagram
+          </a>
+        </div>
       </header>
 
       {/* TYPE FILTER */}
