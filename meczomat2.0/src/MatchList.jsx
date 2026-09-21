@@ -26,48 +26,48 @@ const parseDate = (str) => {
 
 const MatchRow = ({ match, idx }) => (
   <div
-    className="match-card glass-surface rounded-lg p-3.5 flex flex-col sm:flex-row items-center justify-between"
+    className="match-card rounded-2xl border border-brand-cream/6 bg-brand-cream/[0.02] p-3.5 shadow-[0_10px_24px_rgba(0,0,0,0.14)] transition-all duration-300 hover:border-brand-accent/15 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
     style={{ animationDelay: `${idx * 0.03}s` }}
   >
-    <div className="text-center sm:text-left mb-3 sm:mb-0 w-full sm:w-1/4">
-      <div className="text-sm font-bold text-brand-cream/60">{match.dataWizualna}</div>
-      <div className="text-[10px] text-brand-cream/20">{match.godzina}</div>
+    <div className="text-center sm:text-left w-full sm:w-[26%]">
+      <div className="text-sm font-black text-brand-cream/90">{match.dataWizualna}</div>
+      <div className="text-[10px] text-brand-cream/30 mt-0.5">{match.godzina}</div>
       {match.status === 'Nierozegrany' && (
-        <span className="inline-block mt-1 text-[9px] bg-brand-cream/5 text-brand-cream/25 px-2 py-0.5 rounded uppercase font-semibold tracking-wider border border-brand-cream/5">Planowany</span>
+        <span className="inline-block mt-1.5 text-[9px] bg-brand-cream/5 text-brand-cream/30 px-2 py-0.5 rounded-full uppercase tracking-[0.12em] font-semibold border border-brand-cream/8">Planowany</span>
       )}
       {match.status === 'Zakończony' && (
-        <span className="inline-block mt-1 text-[9px] bg-brand-accent/8 text-brand-accent/60 px-2 py-0.5 rounded uppercase font-semibold tracking-wider">Koniec</span>
+        <span className="inline-block mt-1.5 text-[9px] bg-brand-accent/8 text-brand-accent/75 px-2 py-0.5 rounded-full uppercase tracking-[0.12em] font-semibold">Koniec</span>
       )}
     </div>
 
-    <div className="flex items-center justify-center w-full sm:w-2/4">
-      <div className="flex items-center justify-end w-1/3">
-        <span className="font-semibold text-brand-cream/60 text-sm mr-3 text-right">{match.gospodarz.nazwa}</span>
+    <div className="flex flex-col gap-2.5 w-full sm:flex-row sm:items-center sm:justify-center sm:w-[48%]">
+      <div className="flex items-center justify-between gap-2 w-full sm:justify-end sm:w-[42%] sm:min-w-0">
+        <span className="font-semibold text-brand-cream/80 text-[13px] text-right break-words leading-[1.2] min-w-0 flex-1 sm:mr-2">{match.gospodarz.nazwa}</span>
         {match.gospodarz.herb
-          ? <img src={match.gospodarz.herb} alt={match.gospodarz.nazwa} className="w-7 h-7 object-contain" />
-          : <div className="w-7 h-7 bg-brand-accent/5 rounded-full flex-shrink-0 border border-brand-accent/10" />}
+          ? <img src={match.gospodarz.herb} alt={match.gospodarz.nazwa} className="w-7 h-7 object-contain flex-shrink-0" />
+          : <div className="w-7 h-7 bg-brand-accent/6 rounded-full flex-shrink-0 border border-brand-accent/10" />}
       </div>
 
-      <div className="w-1/3 flex justify-center px-3">
+      <div className="flex justify-center w-full sm:w-[16%] sm:px-1">
         {match.status === 'Zakończony' && match.wynikGospodarz !== null ? (
-          <div className="score-badge text-white font-black text-lg px-3.5 py-1 rounded-md tracking-widest">
+          <div className="score-badge text-white font-black text-lg px-3 py-1.5 rounded-xl tracking-[0.08em] shadow-[0_0_18px_rgba(74,222,128,0.2)]">
             {match.wynikGospodarz}:{match.wynikGosc}
           </div>
         ) : (
-          <div className="bg-brand-cream/5 text-brand-cream/15 font-bold text-sm px-3 py-1 rounded-md border border-brand-cream/5">vs</div>
+          <div className="bg-brand-cream/5 text-brand-cream/20 font-bold text-sm px-3 py-1.5 rounded-xl border border-brand-cream/8">vs</div>
         )}
       </div>
 
-      <div className="flex items-center justify-start w-1/3">
+      <div className="flex items-center justify-between gap-2 w-full sm:justify-start sm:w-[42%] sm:min-w-0">
         {match.gosc.herb
-          ? <img src={match.gosc.herb} alt={match.gosc.nazwa} className="w-7 h-7 object-contain" />
-          : <div className="w-7 h-7 bg-brand-accent/5 rounded-full flex-shrink-0 border border-brand-accent/10" />}
-        <span className="font-semibold text-brand-cream/60 text-sm ml-3 text-left">{match.gosc.nazwa}</span>
+          ? <img src={match.gosc.herb} alt={match.gosc.nazwa} className="w-7 h-7 object-contain flex-shrink-0" />
+          : <div className="w-7 h-7 bg-brand-accent/6 rounded-full flex-shrink-0 border border-brand-accent/10" />}
+        <span className="font-semibold text-brand-cream/80 text-[13px] text-left break-words leading-[1.2] min-w-0 flex-1 sm:ml-2">{match.gosc.nazwa}</span>
       </div>
     </div>
 
-    <div className="hidden sm:block sm:w-1/4 text-right">
-      <div className="text-[10px] text-brand-cream/15 uppercase tracking-wider font-semibold">Kolejka {match.kolejka}</div>
+    <div className="hidden sm:block sm:w-[12%] text-right">
+      <div className="text-[10px] text-brand-cream/25 uppercase tracking-[0.16em] font-bold">Kolejka {match.kolejka}</div>
     </div>
   </div>
 );
@@ -148,7 +148,7 @@ const MatchList = ({ leagueId }) => {
               <span className="ml-2 text-xs font-semibold bg-brand-cream/5 text-brand-cream/30 px-2.5 py-0.5 rounded-full">{upcoming.length}</span>
             </h2>
           </div>
-          <div className="p-4 sm:p-5 space-y-2">
+          <div className="p-4 sm:p-5 space-y-2 scroll-smooth-soft">
             {upcoming.slice(0, showUpcoming).map((match, idx) => <MatchRow key={match.id} match={match} idx={idx} />)}
             <ShowMore shown={showUpcoming} total={upcoming.length} onMore={() => setShowUpcoming(n => n + 10)} />
           </div>
@@ -163,7 +163,7 @@ const MatchList = ({ leagueId }) => {
               <span className="ml-2 text-xs font-semibold bg-brand-accent/10 text-brand-accent/60 px-2.5 py-0.5 rounded-full">{played.length}</span>
             </h2>
           </div>
-          <div className="p-4 sm:p-5 space-y-2">
+          <div className="p-4 sm:p-5 space-y-2 scroll-smooth-soft">
             {played.slice(0, showPlayed).map((match, idx) => <MatchRow key={match.id} match={match} idx={idx} />)}
             <ShowMore shown={showPlayed} total={played.length} onMore={() => setShowPlayed(n => n + 10)} />
           </div>

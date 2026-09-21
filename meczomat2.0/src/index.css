@@ -342,14 +342,57 @@ button, a, [role="button"] {
    MATCH CARD
    ================================================================ */
 .match-card {
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
+  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 30px rgba(15, 23, 42, 0.18);
   border-radius: var(--c-radius);
-  transition: border-color 0.2s ease;
+  transition: border-color 0.22s ease, transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.22s ease, opacity 0.22s ease;
+  will-change: transform, opacity;
+  animation: matchCardFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .match-card:hover {
-  border-color: rgba(34, 197, 94, 0.22);
+  border-color: rgba(34, 197, 94, 0.26);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 16px 28px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(34, 197, 94, 0.06);
+  transform: translateY(-1px) scale(1.005);
+}
+
+@keyframes matchCardFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.992);
+    filter: blur(1.5px);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.003);
+    filter: blur(0.2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.scroll-smooth-soft {
+  scroll-behavior: smooth;
+  scrollbar-color: rgba(255,255,255,0.16) transparent;
+}
+
+.scroll-smooth-soft::-webkit-scrollbar {
+  width: 7px;
+}
+
+.scroll-smooth-soft::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-smooth-soft::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+  border-radius: 999px;
 }
 
 /* ================================================================

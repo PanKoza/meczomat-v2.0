@@ -184,17 +184,17 @@ const TeamSearch = ({
               const played   = [...teamMatches].filter(m => m.status === 'Zakończony').sort((a,b) => parseDate(b.dataWizualna)-parseDate(a.dataWizualna));
 
               const MatchRow = ({ match }) => (
-                <div className="match-card flex items-center justify-between p-3.5 rounded-lg text-sm glass-surface">
-                  <div className="w-1/4 text-brand-cream/20 font-bold text-[10px] uppercase tracking-wider">
-                    {match.dataWizualna}<br/>
-                    <span className="text-brand-accent/50">Kol. {match.kolejka}</span>
+                <div className="match-card flex flex-col gap-2.5 rounded-2xl border border-brand-cream/6 bg-brand-cream/[0.02] p-3.5 shadow-[0_10px_24px_rgba(0,0,0,0.14)] transition-all duration-300 hover:border-brand-accent/15 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="w-full text-brand-cream/20 font-bold text-[10px] uppercase tracking-[0.14em] sm:w-[24%]">
+                    <div className="text-brand-cream/80 text-[12px] font-black tracking-[0.02em]">{match.dataWizualna}</div>
+                    <span className="text-brand-accent/60 mt-1 inline-block">Kol. {match.kolejka}</span>
                   </div>
-                  <div className="w-2/4 flex justify-between items-center px-2 sm:px-4 font-medium">
-                    <span className={`w-2/5 text-right truncate text-xs ${match.gospodarz.nazwa === selectedTeam ? 'font-black text-brand-accent' : 'text-brand-cream/40'}`}>{match.gospodarz.nazwa}</span>
-                    <span className={`w-1/5 text-center mx-2 px-2.5 py-1 rounded-md font-black text-white text-xs ${match.status === 'Zakończony' ? 'score-badge' : 'bg-brand-cream/5 text-brand-cream/15'}`}>
+                  <div className="w-full flex items-center justify-between gap-2 px-0 sm:w-[66%] sm:px-2 sm:gap-3 font-medium">
+                    <span className={`flex-1 min-w-0 text-right break-words leading-[1.2] text-[13px] ${match.gospodarz.nazwa === selectedTeam ? 'font-black text-brand-accent' : 'text-brand-cream/60'}`}>{match.gospodarz.nazwa}</span>
+                    <span className={`shrink-0 text-center px-2.5 py-1.5 rounded-xl font-black text-white text-xs ${match.status === 'Zakończony' ? 'score-badge' : 'bg-brand-cream/5 text-brand-cream/20'}`}>
                       {match.status === 'Zakończony' ? `${match.wynikGospodarz}:${match.wynikGosc}` : '-:-'}
                     </span>
-                    <span className={`w-2/5 text-left truncate text-xs ${match.gosc.nazwa === selectedTeam ? 'font-black text-brand-accent' : 'text-brand-cream/40'}`}>{match.gosc.nazwa}</span>
+                    <span className={`flex-1 min-w-0 text-left break-words leading-[1.2] text-[13px] ${match.gosc.nazwa === selectedTeam ? 'font-black text-brand-accent' : 'text-brand-cream/60'}`}>{match.gosc.nazwa}</span>
                   </div>
                 </div>
               );
@@ -208,7 +208,7 @@ const TeamSearch = ({
                       <h3 className="text-sm font-bold text-brand-cream/25 uppercase tracking-widest mb-3 flex items-center gap-2">
                         📅 Nadchodzące mecze <span className="text-[10px] bg-brand-cream/5 text-brand-cream/20 px-2 py-0.5 rounded-full">{upcoming.length}</span>
                       </h3>
-                      <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                      <div className="space-y-2 max-h-64 overflow-y-auto pr-1 scroll-smooth-soft">
                         {upcoming.map(m => <MatchRow key={m.id} match={m} />)}
                       </div>
                     </div>
@@ -218,7 +218,7 @@ const TeamSearch = ({
                       <h3 className="text-sm font-bold text-brand-cream/25 uppercase tracking-widest mb-3 flex items-center gap-2">
                         ✅ Rozegrane mecze <span className="text-[10px] bg-brand-accent/10 text-brand-accent/50 px-2 py-0.5 rounded-full">{played.length}</span>
                       </h3>
-                      <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                      <div className="space-y-2 max-h-64 overflow-y-auto pr-1 scroll-smooth-soft">
                         {played.map(m => <MatchRow key={m.id} match={m} />)}
                       </div>
                     </div>
