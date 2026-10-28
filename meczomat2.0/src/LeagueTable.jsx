@@ -1,26 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import API from './api';
+import { getCachedLeague, fetchLeague } from './leagueData';
 
 const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
-  const [tableData, setTableData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Od razu pokazujemy dane z cache, a świeże podmieniamy, gdy przyjdą z API
+  const [fetched, setFetched] = useState(null); // { leagueId, data }
+  const cached = getCachedLeague('tabela', leagueId);
+  const isFetched = fetched?.leagueId === leagueId;
+  const tableData = (isFetched && fetched.data) || cached || [];
+  const loading = !isFetched && !cached;
 
   useEffect(() => {
-    const pobierzTabele = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`${API}/api/tabela?liga=${leagueId}`);
-        const data = await response.json();
-        setTableData(data);
-      } catch (error) {
-        console.error("Błąd", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    pobierzTabele();
-  }, [leagueId]); 
+    let cancelled = false;
+    fetchLeague('tabela', leagueId)
+      .catch(error => { console.error("Błąd", error); return null; })
+      .then(data => { if (!cancelled) setFetched({ leagueId, data: Array.isArray(data) ? data : null }); });
+    return () => { cancelled = true; };
+  }, [leagueId]);
 
   if (loading) {
     return (

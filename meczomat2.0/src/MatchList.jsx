@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import API from './api';
+import { getCachedLeague, fetchLeague } from './leagueData';
 
 const PL_MONTHS = { sty:0,lut:1,mar:2,kwi:3,maj:4,cze:5,lip:6,sie:7,wrz:8,paz:9,'paź':9,lis:10,gru:11 };
 const PL_MONTH_FULL = { stycznia:0,lutego:1,marca:2,kwietnia:3,maja:4,czerwca:5,lipca:6,sierpnia:7,września:8,października:9,listopada:10,grudnia:11 };
@@ -83,25 +83,21 @@ const ShowMore = ({ shown, total, onMore }) => {
 };
 
 const MatchList = ({ leagueId }) => {
-  const [matches, setMatches] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Od razu pokazujemy dane z cache, a świeże podmieniamy, gdy przyjdą z API
+  const [fetched, setFetched] = useState(null); // { leagueId, data }
   const [showPlayed, setShowPlayed] = useState(5);
   const [showUpcoming, setShowUpcoming] = useState(5);
+  const cached = getCachedLeague('mecze', leagueId);
+  const isFetched = fetched?.leagueId === leagueId;
+  const matches = (isFetched && fetched.data) || cached || [];
+  const loading = !isFetched && !cached;
 
   useEffect(() => {
-    const pobierzMecze = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`${API}/api/mecze?liga=${leagueId}`);
-        const data = await response.json();
-        setMatches(data);
-      } catch (error) {
-        console.error("Błąd pobierania meczów:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    pobierzMecze();
+    let cancelled = false;
+    fetchLeague('mecze', leagueId)
+      .catch(error => { console.error("Błąd pobierania meczów:", error); return null; })
+      .then(data => { if (!cancelled) setFetched({ leagueId, data: Array.isArray(data) ? data : null }); });
+    return () => { cancelled = true; };
   }, [leagueId]);
 
   if (loading) {

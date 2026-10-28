@@ -166,7 +166,8 @@ const LEAGUES = {
 
 // --- 2. MULTI-CACHE ---
 let fetchPromises = {};
-const CACHE_TTL_SEC = 15 * 60; // 15 minut — TTL ustawiany w Redis
+const FRESH_MS = 15 * 60 * 1000;          // po 15 min dane uznajemy za nieświeże i odświeżamy w tle
+const CACHE_TTL_SEC = 7 * 24 * 60 * 60;   // ale trzymamy je tydzień, żeby zawsze było co oddać od razu
 
 // Hashe haseł redaktorów ładowane z .env (JOURNALIST_<LOGIN> = hash bcrypt)
 const JOURNALISTS = {
@@ -178,7 +179,7 @@ const JOURNALISTS = {
 // --- GŁÓWNY SKRYPT SCRAPUJĄCY ---
 async function fetchFrom90Minut(targetUrl) {
   try {
-    const response = await axios.get(targetUrl, { responseType: 'arraybuffer' });
+    const response = await axios.get(targetUrl, { responseType: 'arraybuffer', timeout: 15000 });
     const html = iconv.decode(response.data, 'iso-8859-2');
     const $ = cheerio.load(html);
     
@@ -275,43 +276,77 @@ async function fetchFrom90Minut(targetUrl) {
 }
 
 // --- ZARZĄDCA DANYCH ---
-async function ensureDataIsFresh(ligaId) {
+// Stale-while-revalidate: jeśli mamy jakiekolwiek dane, oddajemy je od razu,
+// a gdy są starsze niż FRESH_MS — odświeżamy je w tle. Czekamy tylko przy pustym cache.
+function refreshLeague(ligaId) {
+  if (fetchPromises[ligaId]) return fetchPromises[ligaId];
+
+  console.log(`🐌 Pobieram dane dla [${ligaId}] z 90minut.pl...`);
+  fetchPromises[ligaId] = (async () => {
+    try {
+      const newData = await fetchFrom90Minut(LEAGUES[ligaId]);
+      if (newData && newData.tabela.length > 0) {
+        newData.fetchedAt = Date.now();
+        await cacheSet(`liga:${ligaId}`, CACHE_TTL_SEC, JSON.stringify(newData));
+      }
+    } finally {
+      fetchPromises[ligaId] = null;
+    }
+  })();
+  return fetchPromises[ligaId];
+}
+
+async function getLeagueData(ligaId) {
   const targetUrl = LEAGUES[ligaId];
   if (!targetUrl || targetUrl.includes('TUTAJ_WKLEJ')) {
     throw new Error("Brak prawidłowego linku dla tej ligi");
   }
 
-  const cached = await cacheGet(`liga:${ligaId}`);
-  if (cached) return true;
-
-  if (fetchPromises[ligaId]) {
-    await fetchPromises[ligaId];
-    return true;
+  let raw = await cacheGet(`liga:${ligaId}`);
+  if (raw) {
+    const data = JSON.parse(raw);
+    if (!data.fetchedAt || Date.now() - data.fetchedAt > FRESH_MS) {
+      refreshLeague(ligaId).catch(() => {});
+    }
+    return data;
   }
 
-  console.log(`🐌 Pobieram dane w locie dla [${ligaId}] z 90minut.pl...`);
-
-  const currentTask = (async () => {
-    const newData = await fetchFrom90Minut(targetUrl);
-    if (newData && newData.tabela.length > 0) {
-      await cacheSet(`liga:${ligaId}`, CACHE_TTL_SEC, JSON.stringify(newData));
-    }
-  })();
-
-  fetchPromises[ligaId] = currentTask;
-  await currentTask;
-  fetchPromises[ligaId] = null;
-  return true;
+  await refreshLeague(ligaId);
+  raw = await cacheGet(`liga:${ligaId}`);
+  return raw ? JSON.parse(raw) : null;
 }
+
+// Rozgrzewanie cache: przy starcie i co FRESH_MS odświeżamy wszystkie ligi w tle,
+// żeby użytkownik praktycznie nigdy nie czekał na scrapowanie.
+async function warmAllLeagues() {
+  const ids = Object.keys(LEAGUES).filter(id => !LEAGUES[id].includes('TUTAJ_WKLEJ'));
+  const CONCURRENCY = 4;
+  let next = 0;
+  const worker = async () => {
+    while (next < ids.length) {
+      const ligaId = ids[next++];
+      const raw = await cacheGet(`liga:${ligaId}`).catch(() => null);
+      const fetchedAt = raw ? JSON.parse(raw).fetchedAt : 0;
+      if (Date.now() - (fetchedAt || 0) > FRESH_MS) {
+        await refreshLeague(ligaId).catch(() => {});
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+  console.log(`🔥 Cache lig rozgrzany (${ids.length})`);
+}
+setTimeout(warmAllLeagues, 2000);
+setInterval(warmAllLeagues, FRESH_MS);
+
+const LEAGUE_CACHE_HEADER = 'public, max-age=60, stale-while-revalidate=600';
 
 // --- ENDPOINTY ZAWODÓW ---
 app.get('/api/tabela', async (req, res) => {
   const ligaId = req.query.liga || 'iv-liga';
   try {
-    await ensureDataIsFresh(ligaId);
-    console.log(`⚡ Oddaję TABELE dla [${ligaId}]`);
-    const raw = await cacheGet(`liga:${ligaId}`);
-    res.json(raw ? JSON.parse(raw).tabela : []);
+    const data = await getLeagueData(ligaId);
+    res.set('Cache-Control', LEAGUE_CACHE_HEADER);
+    res.json(data ? data.tabela : []);
   } catch(e) {
     res.status(400).json({error: "Błąd ligi lub brak linku"});
   }
@@ -320,10 +355,9 @@ app.get('/api/tabela', async (req, res) => {
 app.get('/api/mecze', async (req, res) => {
   const ligaId = req.query.liga || 'iv-liga';
   try {
-    await ensureDataIsFresh(ligaId);
-    console.log(`⚡ Oddaję MECZE dla [${ligaId}]`);
-    const raw = await cacheGet(`liga:${ligaId}`);
-    res.json(raw ? JSON.parse(raw).mecze : []);
+    const data = await getLeagueData(ligaId);
+    res.set('Cache-Control', LEAGUE_CACHE_HEADER);
+    res.json(data ? data.mecze : []);
   } catch(e) {
     res.status(400).json({error: "Błąd ligi lub brak linku"});
   }

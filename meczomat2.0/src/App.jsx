@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import API from './api';
+import { fetchLeague } from './leagueData';
 import LeagueTable from './LeagueTable';
 import MatchList from './MatchList';
 import TeamSearch from './TeamSearch';
@@ -216,7 +217,7 @@ function App() {
       for (let i = 0; i < leagues.length; i += BATCH) {
         const batch = leagues.slice(i, i + BATCH);
         const results = await Promise.allSettled(
-          batch.map(l => fetch(`${API}/api/tabela?liga=${l.id}`).then(r => r.ok ? r.json() : null))
+          batch.map(l => fetchLeague('tabela', l.id))
         );
         results.forEach((r, idx) => {
           if (r.status === 'fulfilled' && Array.isArray(r.value)) {
@@ -231,8 +232,7 @@ function App() {
 
   const fetchNextMatch = async (teamObj) => {
     try {
-      const res = await fetch(`${API}/api/mecze?liga=${teamObj.league}`);
-      const mecze = await res.json();
+      const mecze = await fetchLeague('mecze', teamObj.league);
       if (Array.isArray(mecze)) {
         const upcoming = mecze.find(m => (m.gospodarz.nazwa === teamObj.name || m.gosc.nazwa === teamObj.name) && m.status === 'Nierozegrany');
         setNextMatch(upcoming);
