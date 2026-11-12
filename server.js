@@ -340,13 +340,27 @@ setInterval(warmAllLeagues, FRESH_MS);
 
 const LEAGUE_CACHE_HEADER = 'public, max-age=60, stale-while-revalidate=600';
 
+// Kolejność w tabeli: punkty, potem bilans bramkowy, potem bramki strzelone.
+// Robimy to przy odpowiedzi, żeby objęło też dane już leżące w cache.
+function sortTabela(tabela) {
+  const num = v => parseInt(v, 10) || 0;
+  return [...tabela]
+    .sort((a, b) =>
+      num(b.punkty) - num(a.punkty) ||
+      (num(b.bramkiStrzelone) - num(b.bramkiStracone)) - (num(a.bramkiStrzelone) - num(a.bramkiStracone)) ||
+      num(b.bramkiStrzelone) - num(a.bramkiStrzelone) ||
+      num(a.pozycja) - num(b.pozycja)
+    )
+    .map((row, i) => ({ ...row, pozycja: String(i + 1) }));
+}
+
 // --- ENDPOINTY ZAWODÓW ---
 app.get('/api/tabela', async (req, res) => {
   const ligaId = req.query.liga || 'iv-liga';
   try {
     const data = await getLeagueData(ligaId);
     res.set('Cache-Control', LEAGUE_CACHE_HEADER);
-    res.json(data ? data.tabela : []);
+    res.json(data ? sortTabela(data.tabela) : []);
   } catch(e) {
     res.status(400).json({error: "Błąd ligi lub brak linku"});
   }

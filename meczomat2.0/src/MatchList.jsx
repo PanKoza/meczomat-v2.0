@@ -40,15 +40,15 @@ const MatchRow = ({ match, idx }) => (
       )}
     </div>
 
-    <div className="flex flex-col gap-2.5 w-full sm:flex-row sm:items-center sm:justify-center sm:w-[48%]">
-      <div className="flex items-center justify-between gap-2 w-full sm:justify-end sm:w-[42%] sm:min-w-0">
-        <span className="font-semibold text-brand-cream/80 text-[13px] text-right break-words leading-[1.2] min-w-0 flex-1 sm:mr-2">{match.gospodarz.nazwa}</span>
+    <div className="flex flex-row items-center justify-center gap-2 sm:gap-2.5 w-full sm:w-[48%]">
+      <div className="flex flex-col-reverse items-center gap-1.5 flex-1 min-w-0 sm:flex-row sm:justify-end sm:gap-2 sm:flex-none sm:w-[42%]">
+        <span className="font-semibold text-brand-cream/80 text-[13px] text-center sm:text-right break-words leading-[1.2] min-w-0 w-full sm:w-auto sm:flex-1 sm:mr-2">{match.gospodarz.nazwa}</span>
         {match.gospodarz.herb
           ? <img src={match.gospodarz.herb} alt={match.gospodarz.nazwa} className="w-7 h-7 object-contain flex-shrink-0" />
           : <div className="w-7 h-7 bg-brand-accent/6 rounded-full flex-shrink-0 border border-brand-accent/10" />}
       </div>
 
-      <div className="flex justify-center w-full sm:w-[16%] sm:px-1">
+      <div className="flex justify-center flex-shrink-0 sm:w-[16%] sm:px-1">
         {match.status === 'Zakończony' && match.wynikGospodarz !== null ? (
           <div className="score-badge text-white font-black text-lg px-3 py-1.5 rounded-xl tracking-[0.08em] shadow-[0_0_18px_rgba(74,222,128,0.2)]">
             {match.wynikGospodarz}:{match.wynikGosc}
@@ -58,11 +58,11 @@ const MatchRow = ({ match, idx }) => (
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-2 w-full sm:justify-start sm:w-[42%] sm:min-w-0">
+      <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0 sm:flex-row sm:justify-start sm:gap-2 sm:flex-none sm:w-[42%]">
         {match.gosc.herb
           ? <img src={match.gosc.herb} alt={match.gosc.nazwa} className="w-7 h-7 object-contain flex-shrink-0" />
           : <div className="w-7 h-7 bg-brand-accent/6 rounded-full flex-shrink-0 border border-brand-accent/10" />}
-        <span className="font-semibold text-brand-cream/80 text-[13px] text-left break-words leading-[1.2] min-w-0 flex-1 sm:ml-2">{match.gosc.nazwa}</span>
+        <span className="font-semibold text-brand-cream/80 text-[13px] text-center sm:text-left break-words leading-[1.2] min-w-0 w-full sm:w-auto sm:flex-1 sm:ml-2">{match.gosc.nazwa}</span>
       </div>
     </div>
 

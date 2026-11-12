@@ -48,7 +48,7 @@ const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
               <th className="px-3 py-4 text-center hidden md:table-cell" title="Zwycięstwa">Z</th>
               <th className="px-3 py-4 text-center hidden md:table-cell" title="Remisy">R</th>
               <th className="px-3 py-4 text-center hidden md:table-cell" title="Porażki">P</th>
-              <th className="px-4 py-4 text-center hidden sm:table-cell" title="Bramki">Bramki</th>
+              <th className="px-2 sm:px-4 py-4 text-center whitespace-nowrap" title="Bilans bramkowy">Bramki</th>
             </tr>
           </thead>
           <tbody>
@@ -86,7 +86,7 @@ const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
                   <td className="px-3 py-3.5 text-center hidden md:table-cell text-green-400/80 font-bold text-xs">{row.zwyciestwa}</td>
                   <td className="px-3 py-3.5 text-center hidden md:table-cell text-brand-cream/20 font-bold text-xs">{row.remisy}</td>
                   <td className="px-3 py-3.5 text-center hidden md:table-cell text-red-400/80 font-bold text-xs">{row.porazki}</td>
-                  <td className="px-4 py-3.5 text-center hidden sm:table-cell text-brand-cream/25 font-bold text-xs tracking-wider">{row.bramkiStrzelone}:{row.bramkiStracone}</td>
+                  <td className="px-2 sm:px-4 py-3.5 text-center whitespace-nowrap text-brand-cream/25 font-bold text-xs tracking-wider">{row.bramkiStrzelone}:{row.bramkiStracone}</td>
                 </tr>
               );
             })}
