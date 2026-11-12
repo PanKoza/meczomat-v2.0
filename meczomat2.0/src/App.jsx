@@ -4,6 +4,7 @@ import API from './api';
 import { fetchLeague } from './leagueData';
 import LeagueTable from './LeagueTable';
 import MatchList from './MatchList';
+import SeasonProgress from './SeasonProgress';
 import TeamSearch from './TeamSearch';
 import CmsPanel from './CmsPanel';
 import PublicNews from './PublicNews';
@@ -565,6 +566,7 @@ function App() {
                     changeLeagueAndTeam={changeLeagueAndTeam}
                   />
                   <LeagueTable leagueId={currentLeague} favoriteTeam={favoriteTeam?.name} toggleFavorite={toggleFavorite} />
+                  <SeasonProgress leagueId={currentLeague} favoriteTeam={favoriteTeam?.name} />
                   <MatchList leagueId={currentLeague} />
                 </div>
               </>
