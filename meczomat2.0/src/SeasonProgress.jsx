@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { getCachedLeague, fetchLeague } from './leagueData';
 
-const ROW_H = 22;    // wysokość jednego miejsca w tabeli
+const ROW_H = 30;    // wysokość jednego miejsca w tabeli (zarazem wysokość przycisku obok wykresu)
 const PAD_L = 24;    // miejsce na numery pozycji
 const PAD_R = 10;
 const AXIS_H = 34;   // oś z numerami kolejek
@@ -75,6 +75,7 @@ const SeasonProgress = ({ leagueId, favoriteTeam }) => {
   const [anim, setAnim] = useState(null);       // { leagueId, p } — p to pozycja animacji w kolejkach (ułamkowa)
   const [playing, setPlaying] = useState(null); // leagueId, dla którego trwa odtwarzanie
   const [speed, setSpeed] = useState(1);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [width, setWidth] = useState(0);
   const plotRef = useRef(null);
   const pRef = useRef(0);
@@ -179,6 +180,11 @@ const SeasonProgress = ({ leagueId, favoriteTeam }) => {
     setPlaying(leagueId);
   };
   const pick = team => setPicked({ leagueId, team });
+  const selIndex = last.order.indexOf(selected);
+  const stepTeam = dir => {
+    const next = last.order[selIndex + dir];
+    if (next) pick(next);
+  };
 
   const locate = e => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -204,34 +210,71 @@ const SeasonProgress = ({ leagueId, favoriteTeam }) => {
 
       {/* wybór drużyny */}
       <div className="px-3 sm:px-5 pt-4">
-        <div className="text-[10px] uppercase tracking-[0.16em] font-bold text-brand-cream/30 mb-2">Wybierz drużynę</div>
-        <div className="flex gap-2 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible scroll-smooth-soft">
-          {last.order.map((team, i) => {
-            const on = team === selected;
-            return (
-              <button
-                key={team}
-                type="button"
-                aria-pressed={on}
-                onClick={() => pick(team)}
-                className={`flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap rounded-full border pl-1.5 pr-3 py-1.5 text-xs transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/50 ${
-                  on
-                    ? 'border-brand-accent/60 bg-brand-accent/15 text-brand-accent font-black shadow-[0_0_14px_rgba(34,197,94,0.18)]'
-                    : 'border-brand-cream/8 bg-brand-cream/[0.03] text-brand-cream/55 font-semibold hover:border-brand-cream/20 hover:text-brand-cream/85'
-                }`}
-              >
-                <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-black ${on ? 'bg-brand-accent text-brand-dark' : 'bg-brand-cream/8 text-brand-cream/45'}`}>{i + 1}</span>
-                {team}
-              </button>
-            );
-          })}
+        {/* wybrana drużyna + przełączanie strzałkami na sąsiednie miejsca */}
+        <div className="rounded-xl border border-brand-accent/20 bg-brand-accent/[0.06] p-1.5 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => stepTeam(-1)}
+            disabled={selIndex === 0}
+            aria-label="Drużyna wyżej w tabeli"
+            className="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-lg text-brand-cream/70 text-xl font-black hover:bg-brand-cream/8 active:scale-95 transition disabled:opacity-20 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/50"
+          >‹</button>
+          <button
+            type="button"
+            onClick={() => setPickerOpen(o => !o)}
+            aria-expanded={pickerOpen}
+            className="flex-1 min-w-0 flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-left hover:bg-brand-cream/[0.04] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/50"
+          >
+            <span className="flex items-center justify-center w-8 h-8 flex-shrink-0 rounded-full bg-brand-accent text-brand-dark text-xs font-black">{selNow.pos}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-black text-brand-accent truncate">{selected}</span>
+              <span className="block text-[11px] text-brand-cream/50 truncate">
+                {selNow.pkt} pkt · bramki {selNow.gf}:{selNow.ga} · najwyżej {Math.min(...selPositions)}., najniżej {Math.max(...selPositions)}.
+              </span>
+            </span>
+            <span className={`flex-shrink-0 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-cream/45 flex items-center gap-1`}>
+              <span className="hidden sm:inline">Zmień</span>
+              <span className={`inline-block transition-transform duration-200 ${pickerOpen ? 'rotate-180' : ''}`}>▾</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => stepTeam(1)}
+            disabled={selIndex === last.order.length - 1}
+            aria-label="Drużyna niżej w tabeli"
+            className="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-lg text-brand-cream/70 text-xl font-black hover:bg-brand-cream/8 active:scale-95 transition disabled:opacity-20 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/50"
+          >›</button>
         </div>
 
-        {/* podsumowanie wybranej drużyny */}
-        <div className="mt-2 rounded-xl border border-brand-accent/15 bg-brand-accent/[0.05] px-3.5 py-2.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-          <span className="text-sm font-black text-brand-accent">{selected}</span>
-          <span className="text-[11px] text-brand-cream/50">po {current.round}. kolejce: <b className="text-brand-cream/90">{selNow.pos}. miejsce</b>, {selNow.pkt} pkt, bramki {selNow.gf}:{selNow.ga}</span>
-          <span className="text-[11px] text-brand-cream/35">najwyżej {Math.min(...selPositions)}. · najniżej {Math.max(...selPositions)}.</span>
+        {/* siatka wszystkich drużyn */}
+        <div
+          className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${pickerOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+          aria-hidden={!pickerOpen}
+        >
+          <div className="overflow-hidden">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 pt-2">
+              {last.order.map((team, i) => {
+                const on = team === selected;
+                return (
+                  <button
+                    key={team}
+                    type="button"
+                    tabIndex={pickerOpen ? 0 : -1}
+                    aria-pressed={on}
+                    onClick={() => { pick(team); setPickerOpen(false); }}
+                    className={`flex items-center gap-2 min-h-11 rounded-lg border px-2 py-1.5 text-left text-xs leading-tight transition-all duration-150 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/50 ${
+                      on
+                        ? 'border-brand-accent/60 bg-brand-accent/15 text-brand-accent font-black'
+                        : 'border-brand-cream/8 bg-brand-cream/[0.03] text-brand-cream/65 font-semibold hover:border-brand-cream/20 hover:bg-brand-cream/[0.06] hover:text-brand-cream/90'
+                    }`}
+                  >
+                    <span className={`flex items-center justify-center w-6 h-6 flex-shrink-0 rounded-full text-[10px] font-black ${on ? 'bg-brand-accent text-brand-dark' : 'bg-brand-cream/8 text-brand-cream/45'}`}>{i + 1}</span>
+                    <span className="min-w-0 line-clamp-2 break-words">{team}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -348,10 +391,12 @@ const SeasonProgress = ({ leagueId, favoriteTeam }) => {
           )}
         </div>
 
-        {/* tabela po bieżącej kolejce — podpisy linii, przesuwają się w trakcie animacji */}
-        <div className="relative w-[104px] sm:w-[190px] flex-shrink-0" style={{ height: plotH }}>
+        {/* tabela po bieżącej kolejce — podpisy linii. Przeskakują na nowe miejsca od razu
+            (bez przesuwania), żeby przyciski nigdy na siebie nie nachodziły; ruch pokazuje strzałka. */}
+        <div className="relative w-[124px] sm:w-[200px] flex-shrink-0 ml-1" style={{ height: plotH }}>
           {teams.map(team => {
             const pos = current.byTeam[team].pos;
+            const move = ci > 0 ? snapshots[ci - 1].byTeam[team].pos - pos : 0;
             return (
               <button
                 key={team}
@@ -360,14 +405,26 @@ const SeasonProgress = ({ leagueId, favoriteTeam }) => {
                 onClick={() => pick(team)}
                 onPointerEnter={() => setHover({ i: ci, team })}
                 onPointerLeave={() => setHover(null)}
-                style={{ height: ROW_H, transform: `translateY(${(pos - 1) * ROW_H}px)` }}
-                className={`absolute left-0 top-0 w-full text-left truncate rounded-md px-1 text-[10px] sm:text-xs transition-[transform,color,background-color] duration-300 ease-out focus:outline-none ${
-                  team === selected ? 'font-black text-brand-accent bg-brand-accent/10'
-                    : team === hovered ? 'font-semibold text-brand-cream/90'
-                    : 'font-medium text-brand-cream/40 hover:text-brand-cream/80'
+                aria-pressed={team === selected}
+                style={{ height: ROW_H - 4, transform: `translateY(${(pos - 1) * ROW_H + 2}px)` }}
+                className={`absolute left-0 top-0 w-full flex items-center gap-1.5 rounded-lg border pl-1 pr-2 text-left text-[11px] sm:text-xs leading-none overflow-hidden transition-[color,background-color,border-color] duration-200 active:brightness-125 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/50 ${
+                  team === selected ? 'z-10 border-brand-accent/50 bg-brand-accent/15 text-brand-accent font-black'
+                    : team === hovered ? 'border-brand-cream/20 bg-brand-cream/[0.07] text-brand-cream/90 font-semibold'
+                    : 'border-transparent text-brand-cream/50 font-medium hover:border-brand-cream/15 hover:bg-brand-cream/[0.05] hover:text-brand-cream/85'
                 }`}
               >
-                <span className="inline-block w-4 text-right mr-1.5 opacity-60">{pos}.</span>{team}
+                <span className={`flex items-center justify-center w-5 h-5 flex-shrink-0 rounded-full text-[10px] font-black transition-colors duration-300 ${
+                  team === selected ? 'bg-brand-accent text-brand-dark' : 'bg-brand-cream/8 text-brand-cream/45'
+                }`}>{pos}</span>
+                <span className="min-w-0 flex-1 truncate">{team}</span>
+                {move !== 0 && (
+                  <span
+                    className={`flex-shrink-0 text-[9px] font-black ${move > 0 ? 'text-green-400/80' : 'text-red-400/80'}`}
+                    aria-label={move > 0 ? `awans o ${move}` : `spadek o ${-move}`}
+                  >
+                    {move > 0 ? '▲' : '▼'}<span className="hidden sm:inline">{Math.abs(move)}</span>
+                  </span>
+                )}
               </button>
             );
           })}
