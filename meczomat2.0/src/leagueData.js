@@ -9,9 +9,16 @@ const pending = {};
 
 const keyOf = (type, leagueId) => `${type}:${leagueId}`;
 
+// Dane wstrzyknięte przez serwer do HTML podstrony (api/page.js) — pokazujemy je od razu
+const ssrLeague = typeof window !== 'undefined' ? window.__SSR__?.league : null;
+
 export function getCachedLeague(type, leagueId) {
   const key = keyOf(type, leagueId);
   if (memory[key]) return memory[key];
+  if (ssrLeague && ssrLeague.id === leagueId) {
+    const data = type === 'tabela' ? ssrLeague.tabela : ssrLeague.mecze;
+    if (Array.isArray(data)) return data;
+  }
   try {
     const stored = localStorage.getItem(STORAGE_PREFIX + key);
     if (stored) return (memory[key] = JSON.parse(stored));

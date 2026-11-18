@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getCachedLeague, fetchLeague } from './leagueData';
+import TeamLink from './TeamLink';
 
-const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
+const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite, highlightTeam, title }) => {
   // Od razu pokazujemy dane z cache, a świeże podmieniamy, gdy przyjdą z API
   const [fetched, setFetched] = useState(null); // { leagueId, data }
   const cached = getCachedLeague('tabela', leagueId);
@@ -30,7 +31,7 @@ const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
     <div className="w-full glass-card rounded-2xl mt-6 overflow-hidden animate-slide-up stagger-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 sm:p-6 border-b border-brand-accent/6 gap-3">
         <h2 className="text-lg md:text-xl font-black text-brand-cream flex items-center gap-2">
-          <span className="text-2xl">🏆</span> Tabela ligowa – aktualne wyniki
+          <span className="text-2xl">🏆</span> {title || 'Tabela ligowa – aktualne wyniki'}
         </h2>
         <span className="text-[10px] bg-brand-accent/8 text-brand-accent/60 px-3 py-1.5 rounded-md font-bold uppercase tracking-widest border border-brand-accent/10">
           Sezon 26/27
@@ -53,7 +54,7 @@ const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
           </thead>
           <tbody>
             {tableData.map((row, idx) => {
-              const isFavorite = row.nazwa === favoriteTeam;
+              const isFavorite = row.nazwa === favoriteTeam || row.nazwa === highlightTeam;
               return (
                 <tr 
                   key={row.pozycja} 
@@ -69,6 +70,7 @@ const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
                     <div className="flex items-center">
                       <button 
                         onClick={() => toggleFavorite(row.nazwa, leagueId)}
+                        aria-label={isFavorite ? `Przestań obserwować ${row.nazwa}` : `Obserwuj ${row.nazwa}`}
                         className={`mr-3 text-lg transition-all duration-300 hover:scale-125 focus:outline-none ${isFavorite ? "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]" : "text-brand-cream/15 hover:text-yellow-400/50"}`}
                       >
                         {isFavorite ? "★" : "☆"}
@@ -78,7 +80,7 @@ const LeagueTable = ({ leagueId, favoriteTeam, toggleFavorite }) => {
                       ) : (
                         <div className="w-7 h-7 mr-3 bg-brand-accent/5 rounded-full flex-shrink-0 border border-brand-accent/10"></div>
                       )}
-                      <span className={`whitespace-nowrap text-sm ${isFavorite ? 'font-black text-brand-accent' : 'font-semibold text-brand-cream/70'}`}>{row.nazwa}</span>
+                      <TeamLink name={row.nazwa} leagueId={leagueId} className={`whitespace-nowrap text-sm hover:underline ${isFavorite ? 'font-black text-brand-accent' : 'font-semibold text-brand-cream/70'}`} />
                     </div>
                   </td>
                   <td className="px-3 py-3.5 text-center font-medium text-brand-cream/25 text-xs">{row.mecze}</td>

@@ -1,5 +1,15 @@
 {
+  "trailingSlash": false,
+  "functions": {
+    "api/page.js": { "includeFiles": "dist/index.html" }
+  },
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/rozgrywki", "destination": "/api/page?route=leagues" },
+    { "source": "/rozgrywki/:id", "destination": "/api/page?route=league&id=:id" },
+    { "source": "/druzyna/:slug", "destination": "/api/page?route=team&slug=:slug" },
+    { "source": "/centrum-kibica", "destination": "/api/page?route=news" },
+    { "source": "/cms", "destination": "/api/page?route=cms" },
+    { "source": "/((?!api/|assets/).*)", "destination": "/api/page?route=notfound" }
   ]
 }

@@ -38,7 +38,8 @@ app.use(cors({
     'http://localhost:5174',
     'https://meczomat.pl',
     'https://www.meczomat.pl',
-    /\.onrender\.com$/
+    /\.onrender\.com$/,
+    /\.vercel\.app$/
   ]
 }));
 app.use(express.json());
@@ -375,6 +376,22 @@ app.get('/api/mecze', async (req, res) => {
   } catch(e) {
     res.status(400).json({error: "Błąd ligi lub brak linku"});
   }
+});
+
+// Lista wszystkich drużyn ze wszystkich lig — dla wyszukiwarki, podstron drużyn i sitemapy.
+// Kolejność stabilna (kolejność lig w LEAGUES, potem pozycja w tabeli), bo od niej zależą slugi przy duplikatach nazw.
+app.get('/api/druzyny', async (req, res) => {
+  const ids = Object.keys(LEAGUES).filter(id => !LEAGUES[id].includes('TUTAJ_WKLEJ'));
+  const results = await Promise.all(ids.map(id => getLeagueData(id).catch(() => null)));
+  const teams = [];
+  results.forEach((data, i) => {
+    if (!data) return;
+    sortTabela(data.tabela).forEach(row => teams.push({
+      name: row.nazwa, leagueId: ids[i], pozycja: row.pozycja, punkty: row.punkty,
+    }));
+  });
+  res.set('Cache-Control', LEAGUE_CACHE_HEADER);
+  res.json(teams);
 });
 
 // Inwalidacja cache ligi po zmianie linku — tylko lokalnie/dev

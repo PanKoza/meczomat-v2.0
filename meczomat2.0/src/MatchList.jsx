@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getCachedLeague, fetchLeague } from './leagueData';
+import TeamLink from './TeamLink';
 
 const PL_MONTHS = { sty:0,lut:1,mar:2,kwi:3,maj:4,cze:5,lip:6,sie:7,wrz:8,paz:9,'paź':9,lis:10,gru:11 };
 const PL_MONTH_FULL = { stycznia:0,lutego:1,marca:2,kwietnia:3,maja:4,czerwca:5,lipca:6,sierpnia:7,września:8,października:9,listopada:10,grudnia:11 };
@@ -24,7 +25,7 @@ const parseDate = (str) => {
   return new Date(str);
 };
 
-const MatchRow = ({ match, idx }) => (
+const MatchRow = ({ match, idx, leagueId }) => (
   <div
     className="match-card rounded-2xl border border-brand-cream/6 bg-brand-cream/[0.02] p-3.5 shadow-[0_10px_24px_rgba(0,0,0,0.14)] transition-all duration-300 hover:border-brand-accent/15 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
     style={{ animationDelay: `${idx * 0.03}s` }}
@@ -42,7 +43,7 @@ const MatchRow = ({ match, idx }) => (
 
     <div className="flex flex-row items-center justify-center gap-2 sm:gap-2.5 w-full sm:w-[48%]">
       <div className="flex flex-col-reverse items-center gap-1.5 flex-1 min-w-0 sm:flex-row sm:justify-end sm:gap-2 sm:flex-none sm:w-[42%]">
-        <span className="font-semibold text-brand-cream/80 text-[13px] text-center sm:text-right break-words leading-[1.2] min-w-0 w-full sm:w-auto sm:flex-1 sm:mr-2">{match.gospodarz.nazwa}</span>
+        <TeamLink name={match.gospodarz.nazwa} leagueId={leagueId} className="font-semibold text-brand-cream/80 text-[13px] text-center sm:text-right break-words leading-[1.2] min-w-0 w-full sm:w-auto sm:flex-1 sm:mr-2 hover:underline" />
         {match.gospodarz.herb
           ? <img src={match.gospodarz.herb} alt={match.gospodarz.nazwa} className="w-7 h-7 object-contain flex-shrink-0" />
           : <div className="w-7 h-7 bg-brand-accent/6 rounded-full flex-shrink-0 border border-brand-accent/10" />}
@@ -62,7 +63,7 @@ const MatchRow = ({ match, idx }) => (
         {match.gosc.herb
           ? <img src={match.gosc.herb} alt={match.gosc.nazwa} className="w-7 h-7 object-contain flex-shrink-0" />
           : <div className="w-7 h-7 bg-brand-accent/6 rounded-full flex-shrink-0 border border-brand-accent/10" />}
-        <span className="font-semibold text-brand-cream/80 text-[13px] text-center sm:text-left break-words leading-[1.2] min-w-0 w-full sm:w-auto sm:flex-1 sm:ml-2">{match.gosc.nazwa}</span>
+        <TeamLink name={match.gosc.nazwa} leagueId={leagueId} className="font-semibold text-brand-cream/80 text-[13px] text-center sm:text-left break-words leading-[1.2] min-w-0 w-full sm:w-auto sm:flex-1 sm:ml-2 hover:underline" />
       </div>
     </div>
 
@@ -145,7 +146,7 @@ const MatchList = ({ leagueId }) => {
             </h2>
           </div>
           <div className="p-4 sm:p-5 space-y-2 scroll-smooth-soft">
-            {upcoming.slice(0, showUpcoming).map((match, idx) => <MatchRow key={match.id} match={match} idx={idx} />)}
+            {upcoming.slice(0, showUpcoming).map((match, idx) => <MatchRow key={match.id} match={match} idx={idx} leagueId={leagueId} />)}
             <ShowMore shown={showUpcoming} total={upcoming.length} onMore={() => setShowUpcoming(n => n + 10)} />
           </div>
         </div>
@@ -160,7 +161,7 @@ const MatchList = ({ leagueId }) => {
             </h2>
           </div>
           <div className="p-4 sm:p-5 space-y-2 scroll-smooth-soft">
-            {played.slice(0, showPlayed).map((match, idx) => <MatchRow key={match.id} match={match} idx={idx} />)}
+            {played.slice(0, showPlayed).map((match, idx) => <MatchRow key={match.id} match={match} idx={idx} leagueId={leagueId} />)}
             <ShowMore shown={showPlayed} total={played.length} onMore={() => setShowPlayed(n => n + 10)} />
           </div>
         </div>

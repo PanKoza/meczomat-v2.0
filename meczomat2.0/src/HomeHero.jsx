@@ -42,7 +42,7 @@ function AnimatedCounter({ target, suffix }) {
   return <span ref={nodeRef}>{count}{suffix}</span>;
 }
 
-export default function HomeHero({ searchInput, setSearchInput, filteredGlobalTeams, changeLeagueAndTeam }) {
+export default function HomeHero({ searchInput, setSearchInput, filteredGlobalTeams, onPickTeam }) {
   const [phraseIdx, setPhraseIdx] = useState(0);
   const [typed, setTyped] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -141,7 +141,7 @@ export default function HomeHero({ searchInput, setSearchInput, filteredGlobalTe
                     key={idx}
                     role="option"
                     className="hero-dropdown-item"
-                    onClick={() => { setSearchInput(''); changeLeagueAndTeam(team.province, team.level, team.leagueId, team.name); }}>
+                    onClick={() => { setSearchInput(''); onPickTeam(team); }}>
                     <div className="hero-dropdown-left">
                       <span className="hero-dropdown-name">{team.name}</span>
                       <span className="hero-dropdown-meta">{team.province} · {team.level}</span>

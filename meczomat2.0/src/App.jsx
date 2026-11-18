@@ -1,80 +1,22 @@
-﻿import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+﻿import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import API from './api';
-import { fetchLeague } from './leagueData';
+import { fetchLeague, getCachedLeague } from './leagueData';
+import { useTeamIndex } from './teamIndex';
+import {
+  SITE_URL, SEASON_LABEL, LEAGUE_STRUCTURE, getLeague, leaguePath, teamPath, teamSlugFor, leagueFullName, splitTeamMatches,
+  homeMeta, newsMeta, leaguesIndexMeta, leagueMeta, teamMeta,
+} from './seo/shared';
 import LeagueTable from './LeagueTable';
 import MatchList from './MatchList';
 import SeasonProgress from './SeasonProgress';
-import TeamSearch from './TeamSearch';
+import TeamSearch, { TeamProfile } from './TeamSearch';
 import CmsPanel from './CmsPanel';
 import PublicNews from './PublicNews';
 import CookieConsent from './CookieConsent';
 import HomeHero from './HomeHero';
 import HomeLeagues from './HomeLeagues';
 import HomeLatestContent from './HomeLatestContent';
-
-// --- ROZBUDOWANA STRUKTURA LIG ---
-const LEAGUE_STRUCTURE = {
-  "Cała Polska": {
-    "Ekstraklasa": [{ id: "ekstraklasa", name: "PKO BP Ekstraklasa" }],
-    "I Liga": [{ id: "1-liga", name: "Betclic 1. Liga" }],
-    "II Liga": [{ id: "2-liga", name: "Betclic 2. Liga" }],
-    "III Liga": [
-      { id: "3-liga-gr1", name: "Grupa I" }, { id: "3-liga-gr2", name: "Grupa II" },
-      { id: "3-liga-gr3", name: "Grupa III" }, { id: "3-liga-gr4", name: "Grupa IV" }
-    ]
-  },
-  "Dolnośląskie": {
-    "IV Liga": [{ id: "iv-liga", name: "IV Liga Dolnośląska" }],
-    "V Liga": [], 
-    "Klasa Okręgowa": [
-      { id: "okregowka-Wroclaw", name: "Grupa Wrocław" },
-      { id: "okregowka-Legnica", name: "Grupa Legnica" },
-      { id: "okregowka-Jelenia-Gora", name: "Grupa Jelenia Góra" },
-      { id: "okregowka-Walbrzych", name: "Grupa Wałbrzych" }
-    ],
-    "A-Klasa": [
-      { id: "Decathlon-Klasa-A-Wroclaw-I",      name: "Wrocław I" },
-      { id: "Decathlon-Klasa-A-Wroclaw-II",     name: "Wrocław II" },
-      { id: "Decathlon-Klasa-A-Wroclaw-III",    name: "Wrocław III" },
-      { id: "Decathlon-Klasa-A-Wroclaw-IV",     name: "Wrocław IV" },
-      { id: "Decathlon-Klasa-A-Legnica-I",      name: "Legnica I" },
-      { id: "Decathlon-Klasa-A-Legnica-II",     name: "Legnica II" },
-      { id: "Decathlon-Klasa-A-Legnica-III",    name: "Legnica III" },
-      { id: "Decathlon-Klasa-A-Walbrzych-I",    name: "Wałbrzych I" },
-      { id: "Decathlon-Klasa-A-Walbrzych-II",   name: "Wałbrzych II" },
-      { id: "Decathlon-Klasa-A-Walbrzych-III",  name: "Wałbrzych III" },
-      { id: "Decathlon-Klasa-A-Jelenia-Gora-I", name: "Jelenia Góra I" },
-      { id: "Decathlon-Klasa-A-Jelenia-Gora-II",name: "Jelenia Góra II" },
-      { id: "Decathlon-Klasa-A-Jelenia-Gora-III",name: "Jelenia Góra III" }
-    ],
-    "B-Klasa": [
-      { id: "Klasa-B-Wroclaw-I",       name: "Wrocław I" },
-      { id: "Klasa-B-Wroclaw-II",      name: "Wrocław II" },
-      { id: "Klasa-B-Wroclaw-III",     name: "Wrocław III" },
-      { id: "Klasa-B-Wroclaw-IV",      name: "Wrocław IV" },
-      { id: "Klasa-B-Wroclaw-V",       name: "Wrocław V" },
-      { id: "Klasa-B-Wroclaw-VI",      name: "Wrocław VI" },
-      { id: "Klasa-B-Wroclaw-VII",     name: "Wrocław VII" },
-      { id: "Klasa-B-Wroclaw-VIII",    name: "Wrocław VIII" },
-      { id: "Klasa-B-Legnica-I",       name: "Legnica I" },
-      { id: "Klasa-B-Legnica-II",      name: "Legnica II" },
-      { id: "Klasa-B-Legnica-III",     name: "Legnica III" },
-      { id: "Klasa-B-Legnica-IV",      name: "Legnica IV" },
-      { id: "Klasa-B-Legnica-V",       name: "Legnica V" },
-      { id: "Klasa-B-Walbrzych-I",     name: "Wałbrzych I" },
-      { id: "Klasa-B-Walbrzych-II",    name: "Wałbrzych II" },
-      { id: "Klasa-B-Walbrzych-III",   name: "Wałbrzych III" },
-      { id: "Klasa-B-Walbrzych-IV",    name: "Wałbrzych IV" },
-      { id: "Klasa-B-Walbrzych-V",     name: "Wałbrzych V" },
-      { id: "Klasa-B-Jelenia-Gora-I",  name: "Jelenia Góra I" },
-      { id: "Klasa-B-Jelenia-Gora-II", name: "Jelenia Góra II" },
-      { id: "Klasa-B-Jelenia-Gora-III",name: "Jelenia Góra III" },
-      { id: "Klasa-B-Jelenia-Gora-IV", name: "Jelenia Góra IV" },
-      { id: "Klasa-B-Jelenia-Gora-V",  name: "Jelenia Góra V" }
-    ]
-  }
-};
 
 // --- DEFINICJA SZCZEBLI DO KREATORA ---
 const WIZARD_LEVELS = [
@@ -89,101 +31,146 @@ const WIZARD_LEVELS = [
   { id: 'B-Klasa',         name: 'B-Klasa',      icon: '🍺', type: 'regional',  desc: 'Klasa B' },
 ];
 
+// Okruszki nawigacyjne (pomagają Google zrozumieć strukturę serwisu)
+function Breadcrumbs({ items }) {
+  const all = [{ name: 'Strona główna', path: '/' }, ...items];
+  return (
+    <nav aria-label="Okruszki" className="text-sm mb-4 flex flex-wrap items-baseline gap-1.5" style={{ color: 'var(--c-text-3)' }}>
+      {all.map((it, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <span aria-hidden="true">›</span>}
+          {it.path && i < all.length - 1
+            ? <Link to={it.path} style={{ color: 'var(--c-text-2)', textDecoration: 'none' }} className="crumb-link hover:underline">{it.name}</Link>
+            : <span style={{ color: 'var(--c-text)' }}>{it.name}</span>}
+        </React.Fragment>
+      ))}
+    </nav>
+  );
+}
+
+function NotFound() {
+  return (
+    <div className="text-center py-16 rounded-xl" style={{ background: 'var(--c-surface2)', border: '1px solid var(--c-border)' }}>
+      <span className="text-4xl block mb-3">🤷</span>
+      <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--c-text)' }}>Nie znaleziono strony</h1>
+      <p className="mb-5" style={{ color: 'var(--c-text-2)' }}>Ta liga lub drużyna nie istnieje albo zmieniła adres.</p>
+      <Link to="/rozgrywki" className="btn-primary px-5 py-2.5 text-sm rounded-lg" style={{ textDecoration: 'none' }}>Przejdź do rozgrywek →</Link>
+    </div>
+  );
+}
+
+// Linki do pozostałych grup tej samej klasy rozgrywkowej
+function SiblingLeagues({ league }) {
+  const siblings = (LEAGUE_STRUCTURE[league.province]?.[league.level] || []).filter(g => g.id !== league.id);
+  if (!siblings.length) return null;
+  return (
+    <nav aria-label={`Inne grupy – ${league.level}`} className="glass-card rounded-2xl p-5 sm:p-6 mt-6">
+      <h2 className="text-lg font-black text-brand-cream mb-3">Inne grupy – {league.level}</h2>
+      <div className="flex flex-wrap gap-2">
+        {siblings.map(g => (
+          <Link key={g.id} to={leaguePath(g.id)} className="btn-secondary text-sm px-4 py-2 rounded-lg" style={{ textDecoration: 'none' }}>
+            {getLeague(g.id).name}
+          </Link>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+// Dane z serwera (api/page.js) dotyczą tylko adresu, pod który przyszło pierwsze żądanie
+const SSR = typeof window !== 'undefined' ? window.__SSR__ || null : null;
+
+function setHeadMeta({ title, description, path }, robots = 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1') {
+  const url = SITE_URL + path;
+  document.title = title;
+  const set = (sel, attr, val) => document.querySelector(sel)?.setAttribute(attr, val);
+  set('meta[name="description"]', 'content', description);
+  set('meta[name="robots"]', 'content', robots);
+  set('link[rel="canonical"]', 'href', url);
+  set('meta[property="og:title"]', 'content', title);
+  set('meta[property="og:description"]', 'content', description);
+  set('meta[property="og:url"]', 'content', url);
+  set('meta[name="twitter:title"]', 'content', title);
+  set('meta[name="twitter:description"]', 'content', description);
+}
+
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
+  const pathname = location.pathname;
 
-  // Derive current view from URL path
-  const currentView = location.pathname === '/' ? 'home'
-    : location.pathname.startsWith('/rozgrywki') ? 'leagues'
-    : location.pathname === '/centrum-kibica' ? 'news'
-    : location.pathname === '/cms' ? 'cms'
-    : 'home';
+  // Widok i liga/drużyna wynikają wyłącznie z adresu URL (działa odświeżanie i przycisk „wstecz”)
+  const leagueMatch = pathname.match(/^\/rozgrywki\/([^/]+)\/?$/);
+  const teamMatch = pathname.match(/^\/druzyna\/([^/]+)\/?$/);
+  const currentView = pathname === '/' ? 'home'
+    : teamMatch ? 'team'
+    : pathname === '/rozgrywki' || leagueMatch ? 'leagues'
+    : pathname === '/centrum-kibica' ? 'news'
+    : pathname === '/cms' ? 'cms'
+    : 'notfound';
+  const currentLeague = leagueMatch ? decodeURIComponent(leagueMatch[1]) : null;
+  const leagueInfo = currentLeague ? getLeague(currentLeague) : null;
 
-  const [currentLeague, setCurrentLeague] = useState(null);
+  const teamIndex = useTeamIndex();
+  const teamSlug = teamMatch ? decodeURIComponent(teamMatch[1]) : null;
+  const currentTeam = teamSlug
+    ? (teamIndex?.bySlug[teamSlug] || (SSR?.team?.slug === teamSlug ? SSR.team : null))
+    : null;
+  const teamLeague = currentTeam ? getLeague(currentTeam.leagueId) : null;
 
-  // Dynamic SEO meta per route
+  // Przewijanie na górę przy zmianie podstrony
+  useEffect(() => { window.scrollTo({ top: 0 }); }, [pathname]);
+
+  // Meta tagi per podstrona — te same generatory co w api/page.js.
+  // Przy pierwszym wejściu z serwera nagłówek jest już poprawny, więc go nie ruszamy.
   useEffect(() => {
-    const SEO = {
-      home: {
-        title: 'Meczomat – Wyniki niższych lig piłkarskich na żywo | IV liga, V liga, okręgówka',
-        desc:  'Wyniki meczów, tabele ligowe i terminarze z niższych lig piłkarskich w Polsce. IV liga, V liga, klasa okręgowa, A-klasa, B-klasa. 16 województw, aktualizacje 24/7.',
-      },
-      leagues: {
-        title: `Rozgrywki ligowe – Tabele i wyniki ${currentLeague ? `| ${currentLeague.toUpperCase()} ` : ''}| Meczomat`,
-        desc:  'Tabele i wyniki ze wszystkich klas rozgrywkowych: Ekstraklasa, I Liga, II Liga, III Liga, IV Liga, V Liga, okręgówka, A-klasa, B-klasa. Wybierz swoje województwo.',
-      },
-      news: {
-        title: 'Centrum Kibica – Wideo, transmisje i aktualności piłkarskie | Meczomat',
-        desc:  'Skróty wideo, transmisje na żywo i artykuły z niższych lig polskiej piłki nożnej. Bądź na bieżąco z wynikami ze swojego regionu.',
-      },
-      cms: { title: 'Panel administracyjny | Meczomat', desc: '' },
-    };
-    const { title, desc } = SEO[currentView] || SEO.home;
-    document.title = title;
-    document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
-    document.querySelector('link[rel="canonical"]')?.setAttribute('href', `https://meczomat.pl${location.pathname}`);
-    document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
-    document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
-    document.querySelector('meta[property="og:url"]')?.setAttribute('content', `https://meczomat.pl${location.pathname}`);
+    const fromServer = SSR && SSR.path === pathname;
+    if (!fromServer) document.querySelectorAll('script[data-ssr]').forEach(el => el.remove());
+    if (fromServer) return;
 
-    // Inject per-league structured data for Google rich results
-    const existingScript = document.getElementById('seo-league-ld');
-    if (existingScript) existingScript.remove();
-    if (currentView === 'leagues' && currentLeague) {
-      const leagueName = currentLeague.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-      const script = document.createElement('script');
-      script.id = 'seo-league-ld';
-      script.type = 'application/ld+json';
-      script.text = JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'WebPage',
-        name: `${leagueName} – Tabela i wyniki | Meczomat`,
-        url: `https://meczomat.pl/rozgrywki/${currentLeague}`,
-        description: `Tabela ligowa, terminarz i wyniki meczów: ${leagueName}. Aktualne dane ze wszystkich kolejek sezonu.`,
-        inLanguage: 'pl',
-        breadcrumb: {
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://meczomat.pl/' },
-            { '@type': 'ListItem', position: 2, name: 'Rozgrywki', item: 'https://meczomat.pl/rozgrywki' },
-            { '@type': 'ListItem', position: 3, name: leagueName, item: `https://meczomat.pl/rozgrywki/${currentLeague}` },
-          ],
-        },
-      });
-      document.head.appendChild(script);
+    if (currentView === 'home') setHeadMeta(homeMeta());
+    else if (currentView === 'news') setHeadMeta(newsMeta());
+    else if (currentView === 'cms') setHeadMeta({ title: 'Panel administracyjny | Meczomat', description: '', path: '/cms' }, 'noindex, nofollow');
+    else if (currentView === 'leagues' && !currentLeague) setHeadMeta(leaguesIndexMeta());
+    else if (currentView === 'leagues' && leagueInfo) setHeadMeta(leagueMeta(leagueInfo, getCachedLeague('tabela', currentLeague)));
+    else if (currentView === 'team' && currentTeam && teamLeague) {
+      const tabela = getCachedLeague('tabela', currentTeam.leagueId) || [];
+      const { played, upcoming } = splitTeamMatches(getCachedLeague('mecze', currentTeam.leagueId), currentTeam.name);
+      setHeadMeta(teamMeta(currentTeam, teamLeague, tabela.find(r => r.nazwa === currentTeam.name), played, upcoming));
+    } else if (currentView === 'notfound' || (currentView === 'leagues' && !leagueInfo) || (currentView === 'team' && teamIndex && !currentTeam)) {
+      setHeadMeta({ title: 'Nie znaleziono strony | Meczomat', description: '', path: pathname }, 'noindex, follow');
     }
-  }, [currentView, currentLeague, location.pathname]);
+  }, [pathname, currentView, currentLeague, leagueInfo, currentTeam, teamLeague, teamIndex]);
 
   // --- STANY KREATORA (WIZARD) ---
-  const [wizardStep, setWizardStep] = useState(1); // 1: Szczebel, 2: Województwo, 3: Grupa, 4: Gotowe
+  const [wizardStep, setWizardStep] = useState(1); // 1: Szczebel, 2: Województwo, 3: Grupa
   const [wizLevel, setWizLevel] = useState(null);
   const [wizProv, setWizProv] = useState(null);
 
   const [favoriteTeam, setFavoriteTeam] = useState(null);
   const [nextMatch, setNextMatch] = useState(null);
-  const [targetTeamProfile, setTargetTeamProfile] = useState(null);
 
   const [searchInput, setSearchInput] = useState('');
-  const [globalSearchTerm, setGlobalSearchTerm] = useState('');
-  const [globalTeams, setGlobalTeams] = useState([]); 
 
   const [latestContent, setLatestContent] = useState({ article: null, video: null, stream: null });
 
-  useEffect(() => {
-    const saved = localStorage.getItem('meczomat_fav_obj');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setFavoriteTeam(parsed);
-      fetchNextMatch(parsed);
-    }
+  // Lista drużyn do wyszukiwarek — z jednego indeksu /api/druzyny
+  const globalTeams = useMemo(() => (teamIndex ? teamIndex.list : [])
+    .map(t => {
+      const l = getLeague(t.leagueId);
+      return l ? { ...t, province: l.province, level: l.level } : null;
+    })
+    .filter(Boolean), [teamIndex]);
 
-    // Sync league from URL on initial load
-    const leagueMatch = location.pathname.match(/^\/rozgrywki\/(.+)/);
-    if (leagueMatch) {
-      setCurrentLeague(leagueMatch[1]);
-      setWizardStep(4);
-    }
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('meczomat_fav_obj');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setFavoriteTeam(parsed);
+        fetchNextMatch(parsed);
+      }
+    } catch { /* brak dostępu do storage */ }
 
     const fetchLatest = async () => {
       try {
@@ -204,31 +191,6 @@ function App() {
       } catch (e) { console.error("Błąd nowości", e); }
     };
     fetchLatest();
-
-    const fetchAllTeams = async () => {
-      const leagues = [];
-      for (const prov in LEAGUE_STRUCTURE)
-        for (const lvl in LEAGUE_STRUCTURE[prov])
-          for (const league of LEAGUE_STRUCTURE[prov][lvl])
-            leagues.push({ ...league, province: prov, level: lvl });
-
-      // Pobieramy po 5 na raz żeby nie zalewać API
-      const BATCH = 5;
-      const all = [];
-      for (let i = 0; i < leagues.length; i += BATCH) {
-        const batch = leagues.slice(i, i + BATCH);
-        const results = await Promise.allSettled(
-          batch.map(l => fetchLeague('tabela', l.id))
-        );
-        results.forEach((r, idx) => {
-          if (r.status === 'fulfilled' && Array.isArray(r.value)) {
-            r.value.forEach(team => all.push({ name: team.nazwa, leagueId: batch[idx].id, province: batch[idx].province, level: batch[idx].level }));
-          }
-        });
-      }
-      setGlobalTeams(all);
-    };
-    fetchAllTeams();
   }, []);
 
   const fetchNextMatch = async (teamObj) => {
@@ -254,14 +216,12 @@ function App() {
   const handleLevelSelect = (levelObj) => {
     setWizLevel(levelObj.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
+
     if (levelObj.type === 'national') {
       setWizProv("Cała Polska");
       const groups = LEAGUE_STRUCTURE["Cała Polska"][levelObj.id];
       if (groups && groups.length === 1) {
-        setCurrentLeague(groups[0].id);
-        setWizardStep(4);
-        navigate('/rozgrywki/' + groups[0].id);
+        navigate(leaguePath(groups[0].id));
       } else {
         setWizardStep(3);
       }
@@ -273,33 +233,20 @@ function App() {
   const handleProvinceSelect = (provName) => {
     setWizProv(provName);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
+
     const groups = LEAGUE_STRUCTURE[provName][wizLevel] || [];
     if (groups.length === 1) {
-      setCurrentLeague(groups[0].id);
-      setWizardStep(4);
-      navigate('/rozgrywki/' + groups[0].id);
+      navigate(leaguePath(groups[0].id));
     } else {
       setWizardStep(3);
     }
   };
 
-  const handleGroupSelect = (groupId) => {
-    setCurrentLeague(groupId);
-    setWizardStep(4);
-    navigate('/rozgrywki/' + groupId);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const handleGroupSelect = (groupId) => navigate(leaguePath(groupId));
 
-  const changeLeagueAndTeam = (prov, lvl, leagueId, teamName) => {
-    setWizProv(prov);
-    setWizLevel(lvl);
-    setCurrentLeague(leagueId);
-    setTargetTeamProfile(teamName);
-    setWizardStep(4);
-    navigate('/rozgrywki/' + leagueId);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const openTeam = (team) => navigate(teamPath(team.slug || teamSlugFor(teamIndex, team.name, team.leagueId)));
+
+  const openLeagueWizard = () => { setWizardStep(1); navigate('/rozgrywki'); };
 
   const filteredGlobalTeams = searchInput.trim() 
     ? globalTeams.filter(t => t.name.toLowerCase().includes(searchInput.toLowerCase())) : [];
@@ -359,7 +306,7 @@ function App() {
               searchInput={searchInput}
               setSearchInput={setSearchInput}
               filteredGlobalTeams={filteredGlobalTeams}
-              changeLeagueAndTeam={changeLeagueAndTeam}
+              onPickTeam={openTeam}
             />
 
             {/* Favourite team widget */}
@@ -381,8 +328,8 @@ function App() {
                     )}
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
-                    <button onClick={() => { setTargetTeamProfile(favoriteTeam.name); setCurrentLeague(favoriteTeam.league); setWizardStep(4); navigate('/rozgrywki/' + favoriteTeam.league); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                      className="btn-primary px-5 py-2.5 text-sm rounded-lg">Statystyki →</button>
+                    <Link to={teamPath(teamSlugFor(teamIndex, favoriteTeam.name, favoriteTeam.league))}
+                      className="btn-primary px-5 py-2.5 text-sm rounded-lg" style={{ textDecoration: 'none' }}>Statystyki →</Link>
                     <button onClick={() => toggleFavorite(favoriteTeam.name, favoriteTeam.league)} aria-label="Usuń z ulubionych"
                       className="btn-secondary px-4 py-2.5 text-sm rounded-lg" style={{ color: 'var(--c-text-2)', borderColor: 'var(--c-border)' }}>✕</button>
                   </div>
@@ -393,9 +340,9 @@ function App() {
             {/* Leagues section */}
             <HomeLeagues
               onLevelSelect={(levelObj) => {
-                handleLevelSelect(levelObj);
+                // Najpierw lista rozgrywek; handleLevelSelect może od razu przejść do konkretnej ligi
                 navigate('/rozgrywki');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                handleLevelSelect(levelObj);
               }}
             />
 
@@ -410,7 +357,7 @@ function App() {
         {currentView === 'leagues' && (
           <div className="max-w-4xl mx-auto px-5 py-8">
 
-            {wizardStep < 4 ? (
+            {!currentLeague ? (
               <div className="animate-slide-up">
 
                 {/* Progress */}
@@ -449,7 +396,7 @@ function App() {
                 {wizardStep === 1 && (
                   <div className="animate-fade-in-scale">
                     <div className="mb-7">
-                    <h2 className="text-3xl font-bold mb-1" style={{ color: 'var(--c-text)' }}>Wybierz klasę rozgrywkową</h2>
+                    <h1 className="text-3xl font-bold mb-1" style={{ color: 'var(--c-text)' }}>Rozgrywki – wybierz klasę rozgrywkową</h1>
                     <p className="text-base" style={{ color: 'var(--c-text-2)' }}>Wskaż szczebel ligowy, który Cię interesuje.</p>
                     </div>
 
@@ -533,49 +480,82 @@ function App() {
                 )}
               </div>
 
+            ) : !leagueInfo ? (
+              <NotFound />
             ) : (
-              /* KROK 4: Wyniki ligi */
+              /* Wyniki ligi */
               <>
+                <Breadcrumbs items={[{ name: 'Rozgrywki', path: '/rozgrywki' }, { name: leagueInfo.name }]} />
                 {/* League header bar */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 animate-fade-in-down p-4 rounded-xl"
                      style={{ background: 'var(--c-surface2)', border: '1px solid var(--c-border)', borderLeft: '3px solid var(--c-accent)' }}>
                   <div className="pl-1">
                     <p className="text-xs font-bold uppercase tracking-widest mb-0.5" style={{ color: 'var(--c-accent)' }}>
-                      {wizProv || 'Wyszukiwanie'} · {wizLevel || 'Bezpośrednie'}
+                      {leagueInfo.province} · {leagueInfo.level} · Sezon {SEASON_LABEL}
                     </p>
-                    <h2 className="text-xl font-black" style={{ color: 'var(--c-text)' }}>
-                      {currentLeague?.toUpperCase()}
-                    </h2>
+                    <h1 className="text-xl font-black" style={{ color: 'var(--c-text)' }}>
+                      {leagueFullName(leagueInfo)} – tabela i wyniki
+                    </h1>
                   </div>
-                  <button onClick={() => setWizardStep(1)} className="btn-secondary text-sm px-5 py-2.5 rounded-lg">
+                  <button onClick={openLeagueWizard} className="btn-secondary text-sm px-5 py-2.5 rounded-lg">
                     ⚙️ Zmień ligę
                   </button>
                 </div>
 
                 {/* Data components */}
                 <div className="animate-slide-up stagger-1">
-                  <TeamSearch
-                    leagueId={currentLeague}
-                    favoriteTeam={favoriteTeam?.name}
-                    toggleFavorite={toggleFavorite}
-                    targetTeamProfile={targetTeamProfile}
-                    setTargetTeamProfile={setTargetTeamProfile}
-                    globalSearchTerm={globalSearchTerm}
-                    setGlobalSearchTerm={setGlobalSearchTerm}
-                    globalTeams={globalTeams}
-                    changeLeagueAndTeam={changeLeagueAndTeam}
-                  />
-                  <LeagueTable leagueId={currentLeague} favoriteTeam={favoriteTeam?.name} toggleFavorite={toggleFavorite} />
+                  <TeamSearch globalTeams={globalTeams} onPickTeam={openTeam} />
+                  <LeagueTable leagueId={currentLeague} favoriteTeam={favoriteTeam?.name} toggleFavorite={toggleFavorite}
+                    title={`Tabela – ${leagueInfo.name}`} />
                   <SeasonProgress leagueId={currentLeague} favoriteTeam={favoriteTeam?.name} />
                   <MatchList leagueId={currentLeague} />
+                  <SiblingLeagues league={leagueInfo} />
                 </div>
               </>
             )}
           </div>
         )}
 
+        {/* ============================================================
+            TEAM VIEW — /druzyna/:slug
+            ============================================================ */}
+        {currentView === 'team' && (
+          <div className="max-w-4xl mx-auto px-5 py-8">
+            {currentTeam && teamLeague ? (
+              <>
+                <Breadcrumbs items={[
+                  { name: 'Rozgrywki', path: '/rozgrywki' },
+                  { name: teamLeague.name, path: leaguePath(teamLeague.id) },
+                  { name: currentTeam.name },
+                ]} />
+                <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--c-accent)' }}>
+                  <Link to={leaguePath(teamLeague.id)} className="crumb-link hover:underline" style={{ color: 'inherit', textDecoration: 'none' }}>{leagueFullName(teamLeague)}</Link> · Sezon {SEASON_LABEL}
+                </p>
+                <div className="animate-slide-up stagger-1">
+                  <TeamProfile teamName={currentTeam.name} leagueId={currentTeam.leagueId}
+                    favoriteTeam={favoriteTeam?.name} toggleFavorite={toggleFavorite} />
+                  <LeagueTable leagueId={currentTeam.leagueId} favoriteTeam={favoriteTeam?.name} toggleFavorite={toggleFavorite}
+                    highlightTeam={currentTeam.name} title={`Tabela – ${teamLeague.name}`} />
+                  <SeasonProgress leagueId={currentTeam.leagueId} favoriteTeam={currentTeam.name} />
+                  <div className="mt-10">
+                    <TeamSearch globalTeams={globalTeams} onPickTeam={openTeam} />
+                  </div>
+                </div>
+              </>
+            ) : teamIndex ? (
+              <NotFound />
+            ) : (
+              <div className="flex flex-col justify-center items-center p-16 glass-card rounded-2xl mt-6">
+                <div className="w-10 h-10 border-3 border-brand-accent/10 border-t-brand-accent rounded-full animate-spin mb-4"></div>
+                <span className="text-sm font-bold text-brand-cream/25 animate-pulse uppercase tracking-widest">Ładowanie drużyny...</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {currentView === 'news' && <PublicNews />}
         {currentView === 'cms' && <CmsPanel />}
+        {currentView === 'notfound' && <div className="max-w-4xl mx-auto px-5 py-8"><NotFound /></div>}
       </main>
 
       {/* ================================================================
